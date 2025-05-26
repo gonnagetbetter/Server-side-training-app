@@ -11,7 +11,7 @@ export class StatsReport extends BasicEntity {
   id: number;
 
   @ManyToOne({ entity: () => User, inversedBy: 'statsReports' })
-  @ApiProperty()
+  @ApiProperty({ type: () => User })
   madeBy: User;
 
   @Property()

@@ -1,10 +1,19 @@
-import { Entity, Enum, ManyToOne, OneToMany, PrimaryKey, Property } from '@mikro-orm/core';
+import {
+  Entity,
+  Enum,
+  ManyToOne,
+  OneToMany,
+  PrimaryKey,
+  Property,
+  ManyToMany,
+} from '@mikro-orm/core';
 import { UserRole } from '../enums/user-role.enum';
 import { BasicEntity } from '../../common/basic-entity';
 import { ApiProperty } from '@nestjs/swagger';
 import { UserRepository } from '../repositories/user.repository';
 import { Group } from '../../groups/entities/group.entity';
 import { StatsReport } from '../../stats/entities/stats-report.entity';
+import { Training } from '../../trainings/entities/training.entity';
 
 @Entity({ repository: () => UserRepository })
 export class User extends BasicEntity {
@@ -32,14 +41,25 @@ export class User extends BasicEntity {
   @Property({ hidden: true })
   passwordSalt: string;
 
-  @ManyToOne(() => User, { nullable: true })
+  @Property({ onCreate: () => new Date() })
   @ApiProperty()
+  createdAt: Date;
+
+  @ManyToOne(() => User, { nullable: true })
+  @ApiProperty({ type: () => User })
   trainer_id: number;
 
   @ManyToOne(() => Group, { nullable: true })
-  @ApiProperty()
+  @ApiProperty({ type: () => Group })
   group: Group;
 
-  @OneToMany(() => StatsReport, statsReport => statsReport.madeBy)
+  @OneToMany(() => StatsReport, (statsReport) => statsReport.madeBy)
+  @ApiProperty({ type: () => [StatsReport] })
   statsReports: StatsReport[];
+
+  @ManyToMany(() => Training, (training) => training.absentUsers, {
+    mappedBy: 'absentUsers',
+  })
+  @ApiProperty({ type: () => [Training] })
+  absentOnTrainings: Training[];
 }

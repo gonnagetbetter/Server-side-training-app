@@ -7,7 +7,7 @@ import {
   Param,
   ParseIntPipe,
   Patch,
-  Put,
+  Post,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -38,7 +38,7 @@ export class GroupsController {
     return this.groupsService.findOneSafe(id);
   }
 
-  @Put()
+  @Post()
   @ApiBearerAuth()
   @ApiOkResponse({
     description: 'Creates a group',

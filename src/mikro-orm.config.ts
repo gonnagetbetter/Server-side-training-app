@@ -13,6 +13,7 @@ export default defineConfig({
   host: process.env.DB_HOST,
   port: Number(process.env.DB_PORT),
   driver: PostgreSqlDriver,
+  allowGlobalContext: true,
   migrations: {
     tableName: 'orm_migrations',
     path: 'src/migrations',

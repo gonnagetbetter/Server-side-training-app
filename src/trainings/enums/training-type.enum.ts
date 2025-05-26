@@ -1,4 +1,4 @@
 export enum TrainingType {
   INDIVIDUAL = 'individual',
-  GROUP = 'group'
-} 
+  GROUP = 'group',
+}

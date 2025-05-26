@@ -1,0 +1,1 @@
+export const MONOBANK_CONFIG = 'MONOBANK_CONFIG';

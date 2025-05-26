@@ -1,5 +1,13 @@
 import { BasicEntity } from '../../common/basic-entity';
-import { Entity, PrimaryKey, Property, Enum, ManyToOne } from '@mikro-orm/core';
+import {
+  Entity,
+  PrimaryKey,
+  Property,
+  Enum,
+  ManyToOne,
+  OneToMany,
+  ManyToMany,
+} from '@mikro-orm/core';
 import { TrainingRepository } from '../repositories/training.repository';
 import { ApiProperty } from '@nestjs/swagger';
 import { TrainingType } from '../enums/training-type.enum';
@@ -15,7 +23,7 @@ export class Training extends BasicEntity {
   id: number;
 
   @ManyToOne(() => User, { nullable: true })
-  @ApiProperty()
+  @ApiProperty({ type: () => User })
   trainer: null | User;
 
   @Enum(() => TrainingType)
@@ -23,12 +31,16 @@ export class Training extends BasicEntity {
   trainingType: TrainingType;
 
   @ManyToOne(() => User, { nullable: true })
-  @ApiProperty()
+  @ApiProperty({ type: () => User })
   trainee: User;
 
   @ManyToOne(() => Group, { nullable: true })
-  @ApiProperty()
+  @ApiProperty({ type: () => Group })
   traineeGroup: Group;
+
+  @ManyToMany(() => User)
+  @ApiProperty({ type: () => [User] })
+  absentUsers: User[];
 
   @Property({ nullable: true })
   @ApiProperty()
@@ -47,6 +59,6 @@ export class Training extends BasicEntity {
   NotifiedAbout: boolean;
 
   @ManyToOne({ entity: () => ExerciseSet })
-  @ApiProperty()
+  @ApiProperty({ type: () => ExerciseSet })
   ExerciseSetId: number;
 }

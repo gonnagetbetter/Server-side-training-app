@@ -107,11 +107,11 @@
           "mappedType": "string"
         }
       },
-      "name": "exerc_set",
+      "name": "exercise_set",
       "schema": "public",
       "indexes": [
         {
-          "keyName": "exerc_set_pkey",
+          "keyName": "exercise_set_pkey",
           "columnNames": [
             "id"
           ],
@@ -134,8 +134,8 @@
           "nullable": false,
           "mappedType": "integer"
         },
-        "exerc_set_id": {
-          "name": "exerc_set_id",
+        "exercise_set_id": {
+          "name": "exercise_set_id",
           "type": "int",
           "unsigned": false,
           "autoincrement": false,
@@ -144,14 +144,14 @@
           "mappedType": "integer"
         }
       },
-      "name": "exercise_exerc_sets",
+      "name": "exercise_exercise_sets",
       "schema": "public",
       "indexes": [
         {
-          "keyName": "exercise_exerc_sets_pkey",
+          "keyName": "exercise_exercise_sets_pkey",
           "columnNames": [
             "exercise_id",
-            "exerc_set_id"
+            "exercise_set_id"
           ],
           "composite": true,
           "primary": true,
@@ -160,12 +160,12 @@
       ],
       "checks": [],
       "foreignKeys": {
-        "exercise_exerc_sets_exercise_id_foreign": {
-          "constraintName": "exercise_exerc_sets_exercise_id_foreign",
+        "exercise_exercise_sets_exercise_id_foreign": {
+          "constraintName": "exercise_exercise_sets_exercise_id_foreign",
           "columnNames": [
             "exercise_id"
           ],
-          "localTableName": "public.exercise_exerc_sets",
+          "localTableName": "public.exercise_exercise_sets",
           "referencedColumnNames": [
             "id"
           ],
@@ -173,16 +173,16 @@
           "deleteRule": "cascade",
           "updateRule": "cascade"
         },
-        "exercise_exerc_sets_exerc_set_id_foreign": {
-          "constraintName": "exercise_exerc_sets_exerc_set_id_foreign",
+        "exercise_exercise_sets_exercise_set_id_foreign": {
+          "constraintName": "exercise_exercise_sets_exercise_set_id_foreign",
           "columnNames": [
-            "exerc_set_id"
+            "exercise_set_id"
           ],
-          "localTableName": "public.exercise_exerc_sets",
+          "localTableName": "public.exercise_exercise_sets",
           "referencedColumnNames": [
             "id"
           ],
-          "referencedTableName": "public.exerc_set",
+          "referencedTableName": "public.exercise_set",
           "deleteRule": "cascade",
           "updateRule": "cascade"
         }
@@ -285,6 +285,16 @@
           "primary": false,
           "nullable": false,
           "mappedType": "string"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz(0)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 0,
+          "mappedType": "datetime"
         },
         "trainer_id_id": {
           "name": "trainer_id_id",
@@ -450,8 +460,8 @@
           "nullable": false,
           "mappedType": "boolean"
         },
-        "exerc_set_id_id": {
-          "name": "exerc_set_id_id",
+        "exercise_set_id_id": {
+          "name": "exercise_set_id_id",
           "type": "int",
           "unsigned": false,
           "autoincrement": false,
@@ -514,16 +524,292 @@
           "deleteRule": "set null",
           "updateRule": "cascade"
         },
-        "training_exerc_set_id_id_foreign": {
-          "constraintName": "training_exerc_set_id_id_foreign",
+        "training_exercise_set_id_id_foreign": {
+          "constraintName": "training_exercise_set_id_id_foreign",
           "columnNames": [
-            "exerc_set_id_id"
+            "exercise_set_id_id"
           ],
           "localTableName": "public.training",
           "referencedColumnNames": [
             "id"
           ],
-          "referencedTableName": "public.exerc_set",
+          "referencedTableName": "public.exercise_set",
+          "updateRule": "cascade"
+        }
+      }
+    },
+    {
+      "columns": {
+        "training_id": {
+          "name": "training_id",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "integer"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "integer"
+        }
+      },
+      "name": "training_absent_users",
+      "schema": "public",
+      "indexes": [
+        {
+          "keyName": "training_absent_users_pkey",
+          "columnNames": [
+            "training_id",
+            "user_id"
+          ],
+          "composite": true,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "training_absent_users_training_id_foreign": {
+          "constraintName": "training_absent_users_training_id_foreign",
+          "columnNames": [
+            "training_id"
+          ],
+          "localTableName": "public.training_absent_users",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.training",
+          "deleteRule": "cascade",
+          "updateRule": "cascade"
+        },
+        "training_absent_users_user_id_foreign": {
+          "constraintName": "training_absent_users_user_id_foreign",
+          "columnNames": [
+            "user_id"
+          ],
+          "localTableName": "public.training_absent_users",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.user",
+          "deleteRule": "cascade",
+          "updateRule": "cascade"
+        }
+      }
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "unsigned": true,
+          "autoincrement": true,
+          "primary": true,
+          "nullable": false,
+          "mappedType": "integer"
+        },
+        "made_by_id": {
+          "name": "made_by_id",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "integer"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz(0)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 0,
+          "mappedType": "datetime"
+        },
+        "data": {
+          "name": "data",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "string"
+        }
+      },
+      "name": "stats_report",
+      "schema": "public",
+      "indexes": [
+        {
+          "keyName": "stats_report_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "stats_report_made_by_id_foreign": {
+          "constraintName": "stats_report_made_by_id_foreign",
+          "columnNames": [
+            "made_by_id"
+          ],
+          "localTableName": "public.stats_report",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.user",
+          "updateRule": "cascade"
+        }
+      }
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "unsigned": true,
+          "autoincrement": true,
+          "primary": true,
+          "nullable": false,
+          "mappedType": "integer"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "integer"
+        },
+        "start_date": {
+          "name": "start_date",
+          "type": "timestamptz(0)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 0,
+          "mappedType": "datetime"
+        },
+        "end_date": {
+          "name": "end_date",
+          "type": "timestamptz(0)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 0,
+          "mappedType": "datetime"
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "enumItems": [
+            "pending",
+            "active",
+            "expired",
+            "cancelled"
+          ],
+          "mappedType": "enum"
+        },
+        "invoice_id": {
+          "name": "invoice_id",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "string"
+        },
+        "payment_url": {
+          "name": "payment_url",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "string"
+        },
+        "paid_at": {
+          "name": "paid_at",
+          "type": "timestamptz(0)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 0,
+          "mappedType": "datetime"
+        },
+        "amount": {
+          "name": "amount",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "integer"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz(0)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 0,
+          "mappedType": "datetime"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz(0)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 0,
+          "mappedType": "datetime"
+        }
+      },
+      "name": "membership",
+      "schema": "public",
+      "indexes": [
+        {
+          "keyName": "membership_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "membership_user_id_foreign": {
+          "constraintName": "membership_user_id_foreign",
+          "columnNames": [
+            "user_id"
+          ],
+          "localTableName": "public.membership",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.user",
           "updateRule": "cascade"
         }
       }

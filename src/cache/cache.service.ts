@@ -23,7 +23,9 @@ export class CacheService implements OnApplicationShutdown {
   async get<T>(key: string): Promise<T | null> {
     try {
       const result = await this.redisClient.get(key);
-      if (!result) { return null; }
+      if (!result) {
+        return null;
+      }
       return JSON.parse(result) as T;
     } catch (error) {
       this.logger.error(`REDIS GET FAILED: ${error.message}`);

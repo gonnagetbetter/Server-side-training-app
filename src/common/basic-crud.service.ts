@@ -21,7 +21,10 @@ export class BasicCrudService<T extends BasicEntity> {
     protected readonly entityManager: EntityManager,
   ) {}
 
-  async findOne(args: FilterQuery<T>, options?: FindOneOptions<T>): Promise<T | null> {
+  async findOne(
+    args: FilterQuery<T>,
+    options?: FindOneOptions<T>,
+  ): Promise<T | null> {
     return await this.entityRepository.findOne(args, options);
   }
 
@@ -44,10 +47,7 @@ export class BasicCrudService<T extends BasicEntity> {
     return await this.findOne(args, options);
   }
 
-  async findMany(
-    args: FilterQuery<T>,
-    options?: FindOptions<T>,
-  ): Promise<T[]> {
+  async findMany(args: FilterQuery<T>, options?: FindOptions<T>): Promise<T[]> {
     return await this.entityRepository.find(args, options);
   }
 

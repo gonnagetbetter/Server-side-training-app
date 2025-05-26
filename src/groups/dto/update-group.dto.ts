@@ -10,4 +10,4 @@ export class UpdateGroupDto extends PartialType(CreateGroupDto) {
     description: 'Group ID',
   })
   id: number;
-} 
+}

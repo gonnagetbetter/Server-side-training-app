@@ -42,7 +42,6 @@ export class FindUserArgs {
   @ApiProperty({ required: false })
   trainer_id?: number;
 
-
   @IsOptional()
   @IsNumber()
   @ApiProperty({ required: false })

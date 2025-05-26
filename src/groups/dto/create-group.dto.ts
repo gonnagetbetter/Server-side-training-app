@@ -8,4 +8,4 @@ export class CreateGroupDto {
     description: 'Group name',
   })
   name: string;
-} 
+}

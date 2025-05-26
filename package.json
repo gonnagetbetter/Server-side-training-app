@@ -17,20 +17,28 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json --detectOpenHandles"
+    "test:e2e": "jest --config ./test/jest-e2e.json --detectOpenHandles",
+    "mikro-orm": "mikro-orm",
+    "migration:create": "mikro-orm migration:create",
+    "migration:up": "mikro-orm migration:up",
+    "migration:down": "mikro-orm migration:down"
   },
   "dependencies": {
     "@mikro-orm/cli": "^5.9.4",
     "@mikro-orm/core": "^5.9.4",
     "@mikro-orm/migrations": "^5.9.4",
-    "@mikro-orm/postgresql": "5.9.8",
     "@mikro-orm/nestjs": "^5.2.2",
+    "@mikro-orm/postgresql": "5.9.8",
     "@nestjs/common": "^10.0.0",
     "@nestjs/core": "^10.0.0",
     "@nestjs/event-emitter": "^2.0.3",
     "@nestjs/jwt": "^10.2.0",
     "@nestjs/platform-express": "^10.0.0",
+    "@nestjs/platform-socket.io": "^10.4.18",
+    "@nestjs/schedule": "^6.0.0",
     "@nestjs/swagger": "^7.1.16",
+    "@nestjs/websockets": "^10.4.18",
+    "axios": "^1.9.0",
     "bcrypt": "^5.1.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
@@ -40,6 +48,7 @@
     "moment": "^2.30.1",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
+    "socket.io": "^4.8.1",
     "uuid": "^9.0.1"
   },
   "devDependencies": {
