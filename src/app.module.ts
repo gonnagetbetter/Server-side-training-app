@@ -4,9 +4,10 @@ import { UsersModule } from './users/users.module';
 import { TrainingsModule } from './trainings/trainings.module';
 import { GroupsModule } from './groups/groups.module';
 import { StatsModule } from './stats/stats.module';
-import { ExercSetModule } from './ExercSet/ExercSet.module';
 import { ExerciseModule } from './exercise/exercise.module';
 import MikroOrmConfig from './mikro-orm.config';
+import { NotificationsModule } from './notifications/notifications.module';
+import { ExerciseSetModule } from './exercise-set/exercise-set.module';
 
 @Module({
   imports: [
@@ -15,8 +16,10 @@ import MikroOrmConfig from './mikro-orm.config';
     TrainingsModule,
     GroupsModule,
     StatsModule,
-    ExercSetModule,
     ExerciseModule,
+    NotificationsModule,
+    StatsModule,
+    ExerciseSetModule,
   ],
 })
 export class AppModule {}

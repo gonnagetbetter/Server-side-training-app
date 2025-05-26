@@ -4,9 +4,9 @@ import { TrainingRepository } from '../repositories/training.repository';
 import { ApiProperty } from '@nestjs/swagger';
 import { TrainingType } from '../enums/training-type.enum';
 import { TrainingStatus } from '../enums/training-status';
-import { ExercSet } from '../../ExercSet/entities/ExercSet.entity';
 import { User } from '../../users/entities/user.entity';
 import { Group } from '../../groups/entities/group.entity';
+import { ExerciseSet } from '../../exercise-set/entities/exercise-set.entity';
 
 @Entity({ repository: () => TrainingRepository })
 export class Training extends BasicEntity {
@@ -46,7 +46,7 @@ export class Training extends BasicEntity {
   @ApiProperty()
   NotifiedAbout: boolean;
 
-  @ManyToOne({ entity: () => ExercSet })
+  @ManyToOne({ entity: () => ExerciseSet })
   @ApiProperty()
-  ExercSetId: number;
+  ExerciseSetId: number;
 }

@@ -7,12 +7,12 @@ import {
 } from '@mikro-orm/core';
 import { BasicEntity } from '../../common/basic-entity';
 import { ApiProperty } from '@nestjs/swagger';
-import { ExercSetRepository } from '../repositories/set.repository';
 import { Training } from '../../trainings/entities/training.entity';
 import { Exercise } from '../../exercise/entities/exercise.entity';
+import { ExerciseSetRepository } from '../repositories/exercise-set.repository';
 
-@Entity({ repository: () => ExercSetRepository })
-export class ExercSet extends BasicEntity {
+@Entity({ repository: () => ExerciseSetRepository })
+export class ExerciseSet extends BasicEntity {
   @PrimaryKey({ autoincrement: true })
   @ApiProperty()
   id: number;
@@ -21,13 +21,13 @@ export class ExercSet extends BasicEntity {
   @ApiProperty()
   name: string;
 
-  @ManyToMany(() => Exercise, (exercise) => exercise.exercSets, {
-    mappedBy: 'exercSets',
+  @ManyToMany(() => Exercise, (exercise) => exercise.exerciseSets, {
+    mappedBy: 'exerciseSets',
   })
   @ApiProperty()
   exercises: Exercise[];
 
-  @OneToMany(() => Training, (training) => training.ExercSetId)
+  @OneToMany(() => Training, (training) => training.ExerciseSetId)
   @ApiProperty()
   trainings: Training[];
 }

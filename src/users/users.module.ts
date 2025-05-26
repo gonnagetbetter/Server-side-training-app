@@ -12,7 +12,7 @@ import { GroupsModule } from '../groups/groups.module';
     MikroOrmModule.forFeature([User]),
     CacheModule.forRootFromConfig(),
     forwardRef(() => AuthModule),
-    GroupsModule,
+    forwardRef(() => GroupsModule),
   ],
   controllers: [UsersController],
   providers: [UsersService],

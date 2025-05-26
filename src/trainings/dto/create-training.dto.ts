@@ -1,9 +1,18 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsNumber, IsOptional, IsString, IsDate } from 'class-validator';
+import {
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsDate,
+} from 'class-validator';
 import { TrainingType } from '../enums/training-type.enum';
 
 export class CreateTrainingDto {
-  @ApiProperty({ enum: TrainingType, description: 'Type of the training (individual or group)' })
+  @ApiProperty({
+    enum: TrainingType,
+    description: 'Type of the training (individual or group)',
+  })
   @IsEnum(TrainingType)
   trainingType: TrainingType;
 
@@ -33,5 +42,5 @@ export class CreateTrainingDto {
 
   @ApiProperty({ description: 'ID of the exercise set' })
   @IsNumber()
-  ExercSetId: number;
-} 
+  ExerciseSetId: number;
+}

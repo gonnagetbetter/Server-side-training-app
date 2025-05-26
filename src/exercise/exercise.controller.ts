@@ -21,7 +21,7 @@ import { UpdateExerciseDto } from './dto/update-exersice.dto';
 @UseGuards(AuthGuard)
 @ApiTags('exercise')
 export class ExerciseController {
-  constructor(private readonly ExerciseService: ExerciseService) {}
+  constructor(private readonly exerciseService: ExerciseService) {}
 
   @Get()
   @ApiBearerAuth()
@@ -29,12 +29,13 @@ export class ExerciseController {
     description: 'Returned all exercises',
   })
   findAll(@Query() args: FindExerciseArgs) {
-    return this.ExerciseService.findAll(args);
+    return this.exerciseService.findAll(args);
   }
 
+  @ApiBearerAuth()
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.ExerciseService.findOneSafe(id);
+    return this.exerciseService.findOneSafe(id);
   }
 
   @Put()
@@ -43,16 +44,18 @@ export class ExerciseController {
     description: 'Created an exercise',
   })
   createExercise(@Body() dto: CreateExerciseDto) {
-    return this.ExerciseService.create(dto);
+    return this.exerciseService.create(dto);
   }
 
+  @ApiBearerAuth()
   @Patch()
   update(@Body() dto: UpdateExerciseDto) {
-    return this.ExerciseService.update(dto);
+    return this.exerciseService.update(dto);
   }
 
+  @ApiBearerAuth()
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {
-    return this.ExerciseService.remove(id);
+    return this.exerciseService.remove(id);
   }
 }

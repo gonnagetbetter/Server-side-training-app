@@ -1,27 +1,27 @@
 import { Injectable } from '@nestjs/common';
 import { CacheService } from '../cache/cache.service';
 import { EntityManager, FilterQuery } from '@mikro-orm/core';
-import { ExercSetRepository } from './repositories/set.repository';
-import { ExercSet } from './entities/ExercSet.entity';
 import { BasicCrudService } from '../common/basic-crud.service';
-import { CreateExercSetDto } from './dto/create-exerc-set.dto';
-import { FindExercSetArgs } from './args/find-exerc-set.args';
-import { UpdateExercSetDto } from './dto/update-exerc-set.dto';
 import { ExerciseService } from '../exercise/exercise.service';
+import { ExerciseSet } from './entities/exercise-set.entity';
+import { ExerciseSetRepository } from './repositories/exercise-set.repository';
+import { FindExerciseSetArgs } from './args/find-exercise-set.args';
+import { CreateExerciseSetDto } from './dto/create-exercise-set.dto';
+import { UpdateExerciseSetDto } from './dto/update-exercise-set.dto';
 
 @Injectable()
-export class ExercSetService extends BasicCrudService<ExercSet> {
+export class ExerciseSetService extends BasicCrudService<ExerciseSet> {
   constructor(
     protected readonly cacheService: CacheService,
-    protected readonly exercSetRepository: ExercSetRepository,
+    protected readonly exerciseSetRepository: ExerciseSetRepository,
     protected readonly entityManager: EntityManager,
     protected readonly exerciseService: ExerciseService,
   ) {
-    super(ExercSet, exercSetRepository, cacheService, entityManager);
+    super(ExerciseSet, exerciseSetRepository, cacheService, entityManager);
   }
 
-  async findAll(args: FindExercSetArgs) {
-    const filter: FilterQuery<ExercSet> = {};
+  async findAll(args: FindExerciseSetArgs) {
+    const filter: FilterQuery<ExerciseSet> = {};
 
     if (args.name) {
       filter.name = { $eq: args.name };
@@ -31,12 +31,12 @@ export class ExercSetService extends BasicCrudService<ExercSet> {
   }
 
   async findOneSafe(id: number) {
-    const filter: FilterQuery<ExercSet> = { id };
+    const filter: FilterQuery<ExerciseSet> = { id };
 
     return this.findOneOrFail(filter);
   }
 
-  async create(dto: CreateExercSetDto) {
+  async create(dto: CreateExerciseSetDto) {
     const exercises = await Promise.all(
       dto.exerciseIds.map((id) => this.exerciseService.findOneSafe(id)),
     );
@@ -48,11 +48,11 @@ export class ExercSetService extends BasicCrudService<ExercSet> {
     });
   }
 
-  async update(dto: UpdateExercSetDto) {
+  async update(dto: UpdateExerciseSetDto) {
     const { id, exerciseIds, ...rest } = dto;
-    const filter: FilterQuery<ExercSet> = { id };
+    const filter: FilterQuery<ExerciseSet> = { id };
 
-    const updateData: Partial<ExercSet> = { ...rest };
+    const updateData: Partial<ExerciseSet> = { ...rest };
 
     if (exerciseIds) {
       const exercises = await Promise.all(
@@ -66,7 +66,7 @@ export class ExercSetService extends BasicCrudService<ExercSet> {
   }
 
   async remove(id: number) {
-    const filter: FilterQuery<ExercSet> = { id };
+    const filter: FilterQuery<ExerciseSet> = { id };
 
     return this.deleteOne(filter);
   }

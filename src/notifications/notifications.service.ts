@@ -4,21 +4,19 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { TrainingsService } from '../trainings/trainings.service';
 import { FindTrainingArgs } from '../trainings/args/find-training.args';
 import { TrainingStatus } from '../trainings/enums/training-status';
-import { EntityManager } from '@mikro-orm/postgresql';
 import { TrainingType } from '../trainings/enums/training-type.enum';
-import { User } from '../users/entities/user.entity';
+import { GroupsService } from '../groups/groups.service';
 
 @Injectable()
 export class NotificationsService {
   constructor(
     private readonly notificationsGateway: NotificationsGateway,
     private readonly trainingsService: TrainingsService,
-    private readonly entityManager: EntityManager,
+    private readonly groupsService: GroupsService,
   ) {}
 
   @Cron(CronExpression.EVERY_MINUTE)
   async checkUpcomingTrainings() {
-    const em = this.entityManager.fork();
     const args = new FindTrainingArgs();
 
     args.status = TrainingStatus.FUTURE;
@@ -33,7 +31,6 @@ export class NotificationsService {
         const message = `Reminder: training starts at ${training.date.toLocaleTimeString()}`;
 
         if (training.trainingType === TrainingType.INDIVIDUAL) {
-          // For individual training, send notification only to the trainee
           if (training.trainee) {
             this.notificationsGateway.sendReminder(
               training.trainee.id.toString(),
@@ -41,16 +38,17 @@ export class NotificationsService {
             );
           }
         } else if (training.trainingType === TrainingType.GROUP) {
-          // For group training, send notification to all group members
           if (training.traineeGroup) {
-            const groupMembers = await em.find(User, {
-              group: training.traineeGroup,
-            });
+            const groupMembers = await this.groupsService.findAllMembers(
+              training.traineeGroup,
+            );
             for (const member of groupMembers) {
-              this.notificationsGateway.sendReminder(
-                member.id.toString(),
-                message,
-              );
+              if (member.id) {
+                this.notificationsGateway.sendReminder(
+                  member.id.toString(),
+                  message,
+                );
+              }
             }
           }
         }

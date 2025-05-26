@@ -112,7 +112,7 @@ export class TrainingsService extends BasicCrudService<Training> {
     }
     training.description = createTrainingDto.description || '';
     training.date = createTrainingDto.date;
-    training.ExercSetId = createTrainingDto.ExercSetId;
+    training.ExerciseSetId = createTrainingDto.ExerciseSetId;
     training.status = TrainingStatus.FUTURE;
     training.NotifiedAbout = false;
 
@@ -147,8 +147,8 @@ export class TrainingsService extends BasicCrudService<Training> {
       query.andWhere({ traineeGroup: args.traineeGroup });
     }
 
-    if (args.exercSetId) {
-      query.andWhere({ ExercSetId: args.exercSetId });
+    if (args.exerciseSetId) {
+      query.andWhere({ ExerciseSetId: args.exerciseSetId });
     }
 
     if (args.description) {

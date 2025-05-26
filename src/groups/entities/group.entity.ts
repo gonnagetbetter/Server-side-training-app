@@ -17,5 +17,4 @@ export class Group extends BasicEntity {
   @Property()
   @ApiProperty()
   name: string;
-
 }

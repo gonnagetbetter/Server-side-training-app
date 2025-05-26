@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { BasicCrudService } from '../common/basic-crud.service';
 import { User } from './entities/user.entity';
 import { CacheService } from '../cache/cache.service';
@@ -6,8 +10,6 @@ import { UserRepository } from './repositories/user.repository';
 import { EntityManager, FilterQuery } from '@mikro-orm/core';
 import { plainToInstance } from 'class-transformer';
 import { FindUserArgs } from './args/find-user.args';
-import { UpdateExercSetDto } from '../ExercSet/dto/update-exerc-set.dto';
-import { ExercSet } from '../ExercSet/entities/ExercSet.entity';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { GroupsService } from '../groups/groups.service';
 import { UserRole } from './enums/user-role.enum';

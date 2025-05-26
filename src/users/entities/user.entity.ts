@@ -1,9 +1,10 @@
-import { Entity, Enum, ManyToOne, PrimaryKey, Property } from '@mikro-orm/core';
+import { Entity, Enum, ManyToOne, OneToMany, PrimaryKey, Property } from '@mikro-orm/core';
 import { UserRole } from '../enums/user-role.enum';
 import { BasicEntity } from '../../common/basic-entity';
 import { ApiProperty } from '@nestjs/swagger';
 import { UserRepository } from '../repositories/user.repository';
 import { Group } from '../../groups/entities/group.entity';
+import { StatsReport } from '../../stats/entities/stats-report.entity';
 
 @Entity({ repository: () => UserRepository })
 export class User extends BasicEntity {
@@ -38,4 +39,7 @@ export class User extends BasicEntity {
   @ManyToOne(() => Group, { nullable: true })
   @ApiProperty()
   group: Group;
+
+  @OneToMany(() => StatsReport, statsReport => statsReport.madeBy)
+  statsReports: StatsReport[];
 }

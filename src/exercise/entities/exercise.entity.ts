@@ -2,8 +2,7 @@ import { Entity, ManyToMany, PrimaryKey, Property } from '@mikro-orm/core';
 import { ExerciseRepository } from '../repositories/exercise.repository';
 import { BasicEntity } from '../../common/basic-entity';
 import { ApiProperty } from '@nestjs/swagger';
-import { ExercSet } from '../../ExercSet/entities/ExercSet.entity';
-
+import { ExerciseSet } from '../../exercise-set/entities/exercise-set.entity';
 @Entity({ repository: () => ExerciseRepository })
 export class Exercise extends BasicEntity {
   @PrimaryKey({ autoincrement: true })
@@ -34,7 +33,7 @@ export class Exercise extends BasicEntity {
   @ApiProperty()
   repsNum: number;
 
-  @ManyToMany(() => ExercSet)
+  @ManyToMany(() => ExerciseSet)
   @ApiProperty()
-  exercSets: ExercSet[];
+  exerciseSets: ExerciseSet[];
 }

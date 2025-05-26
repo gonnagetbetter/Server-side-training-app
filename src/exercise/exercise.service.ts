@@ -57,7 +57,7 @@ export class ExerciseService extends BasicCrudService<Exercise> {
   async create(dto: CreateExerciseDto) {
     return this.createOne({
       ...dto,
-      exercSets: [],
+      exerciseSets: [],
     });
   }
 

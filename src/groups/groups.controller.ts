@@ -32,6 +32,7 @@ export class GroupsController {
     return this.groupsService.findAll(args);
   }
 
+  @ApiBearerAuth()
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.groupsService.findOneSafe(id);
@@ -46,11 +47,13 @@ export class GroupsController {
     return this.groupsService.create(dto);
   }
 
+  @ApiBearerAuth()
   @Patch()
   update(@Body() dto: UpdateGroupDto) {
     return this.groupsService.update(dto);
   }
 
+  @ApiBearerAuth()
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.groupsService.remove(id);

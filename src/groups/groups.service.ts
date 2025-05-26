@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject, forwardRef } from '@nestjs/common';
 import { CacheService } from '../cache/cache.service';
 import { EntityManager, FilterQuery } from '@mikro-orm/core';
 import { GroupRepository } from './repositories/group.repository';
@@ -7,6 +7,7 @@ import { BasicCrudService } from '../common/basic-crud.service';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { FindGroupArgs } from './args/find-group.args';
 import { UpdateGroupDto } from './dto/update-group.dto';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class GroupsService extends BasicCrudService<Group> {
@@ -14,6 +15,8 @@ export class GroupsService extends BasicCrudService<Group> {
     protected readonly cacheService: CacheService,
     protected readonly groupRepository: GroupRepository,
     protected readonly entityManager: EntityManager,
+    @Inject(forwardRef(() => UsersService))
+    private readonly usersService: UsersService,
   ) {
     super(Group, groupRepository, cacheService, entityManager);
   }
@@ -52,5 +55,9 @@ export class GroupsService extends BasicCrudService<Group> {
     const filter: FilterQuery<Group> = { id };
 
     return this.deleteOne(filter);
+  }
+
+  async findAllMembers(group: Group) {
+    return this.usersService.complexSearch({ group_id: group.id });
   }
 }

@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsArray, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
-export class CreateExercSetDto {
+export class CreateExerciseSetDto {
   @IsString()
   @IsNotEmpty()
   @ApiProperty({
@@ -17,4 +17,4 @@ export class CreateExercSetDto {
     type: [Number],
   })
   exerciseIds: number[];
-} 
+}

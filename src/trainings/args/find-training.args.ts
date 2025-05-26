@@ -70,7 +70,7 @@ export class FindTrainingArgs {
     required: false,
     description: 'ID of the exercise set',
   })
-  exercSetId?: number;
+  exerciseSetId?: number;
 
   @IsOptional()
   @IsString()
