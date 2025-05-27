@@ -89,15 +89,15 @@ export class UsersService extends BasicCrudService<User> {
       updateData.role = dto.role as UserRole;
     }
 
-    if (dto.trainer_id) {
-      const trainer = await this.findOne({ id: dto.trainer_id });
+    if (dto.trainerId) {
+      const trainer = await this.findOne({ id: dto.trainerId });
       if (!trainer) {
         throw new NotFoundException('Trainer not found');
       }
       if (trainer.role !== UserRole.TRAINER) {
         throw new BadRequestException('Specified user is not a trainer');
       }
-      updateData.trainer_id = dto.trainer_id;
+      updateData.trainerId = dto.trainerId;
     }
 
     if (dto.group_id) {

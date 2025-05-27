@@ -9,13 +9,26 @@ export class CreateStatsReportDto {
   })
   monthsNum: number;
 
-  @ApiProperty({ required: false, description: 'Start date of the statistics period' })
+  @ApiProperty({
+    required: false,
+    description: 'Start date of the statistics period',
+  })
   @IsDate()
   @IsOptional()
   startDate?: Date;
 
-  @ApiProperty({ required: false, description: 'End date of the statistics period' })
+  @ApiProperty({
+    required: false,
+    description: 'End date of the statistics period',
+  })
   @IsDate()
   @IsOptional()
   endDate?: Date;
+
+  @ApiProperty({
+    required: false,
+    description: "User's ID",
+  })
+  @IsNumber()
+  userId: number;
 }

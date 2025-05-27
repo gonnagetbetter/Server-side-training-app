@@ -35,7 +35,7 @@ export class UpdateUserDto {
   })
   @IsNumber()
   @IsOptional()
-  trainer_id?: number;
+  trainerId?: number;
 
   @ApiProperty({
     description: 'ID of the group the user belongs to',
