@@ -11,7 +11,7 @@ import { UsersService } from '../users/users.service';
 import { MembershipStatus } from './enum/membership-status.enum';
 import { MonobankClient } from '../monobank/monobank-client';
 import { Membership } from './entity/membership.entity';
-import { MONOBANK_CONFIG } from '../monobank/constants';
+import { MONOBANK_CONFIG, UAN_CCY } from '../monobank/constants';
 import { IMonobankConfig } from '../monobank/interface/monobank-config.interface';
 import { BasicCrudService } from '../common/basic-crud.service';
 import { MembershipRepository } from './repositories/membership.repository';
@@ -40,8 +40,7 @@ export class MembershipService extends BasicCrudService<Membership> {
     meta: UserMetadata,
   ): Promise<{ paymentUrl: string }> {
     const user = await this.userService.findOneOrFail(meta.userId);
-
-    const membership = await this.findOne({ user });
+    const membership = await this.getMembership(meta);
 
     if (
       membership &&
@@ -56,8 +55,8 @@ export class MembershipService extends BasicCrudService<Membership> {
 
     const invoicePayload = {
       amount: amount,
-      ccy: 980, // UAH
-      redirectUrl: 'http://localhost:3001/',
+      ccy: UAN_CCY,
+      redirectUrl: this.config.redirectUrl,
       merchantPaymInfo: {
         reference: user.id.toString(),
         destination: `Оплата абонемента`,
@@ -99,9 +98,7 @@ export class MembershipService extends BasicCrudService<Membership> {
       const monthNum = amount / MONTHLY_MEMBERSHIP_PRICE;
       membership.startDate = new Date();
       membership.endDate = new Date(
-        membership.startDate.setMonth(
-          membership.startDate.getMonth() + monthNum,
-        ),
+        new Date().setMonth(membership.startDate.getMonth() + monthNum),
       );
       membership.status = MembershipStatus.ACTIVE;
       membership.paidAt = new Date();
@@ -112,16 +109,21 @@ export class MembershipService extends BasicCrudService<Membership> {
     await this.updateOne({ id: membership.id }, membership);
   }
 
-  async getMembership(id: number) {
-    const result = await this.findOneOrFail({ id });
+  async getMembership(meta: UserMetadata) {
+    const user = await this.userService.findOne(meta.userId);
+    const result = await this.findOne({
+      user,
+      status: MembershipStatus.ACTIVE,
+    });
     if (
+      result &&
       result.status == 'active' &&
       result.endDate &&
       result.endDate < new Date()
     ) {
       result.status = MembershipStatus.EXPIRED;
-      await this.updateOne({ id }, result);
+      return result;
     }
-    return await this.findOne({ id });
+    return result;
   }
 }

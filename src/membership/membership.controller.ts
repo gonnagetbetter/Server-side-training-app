@@ -42,6 +42,6 @@ export class MembershipController {
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
   async getMembership(@UserMeta() meta: UserMetadata) {
-    return this.membershipService.getMembership(meta.userId);
+    return this.membershipService.getMembership(meta);
   }
 }
