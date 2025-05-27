@@ -17,6 +17,7 @@ import { FindTrainingArgs } from './args/find-training.args';
 import { UsersService } from '../users/users.service';
 import { GroupsService } from '../groups/groups.service';
 import { UserRole } from '../users/enums/user-role.enum';
+import { UserMetadata } from '../auth/types/user-metadata.type';
 
 @Injectable()
 export class TrainingsService extends BasicCrudService<Training> {
@@ -30,7 +31,10 @@ export class TrainingsService extends BasicCrudService<Training> {
     super(Training, trainingRepository, cacheService, entityManager);
   }
 
-  async create(createTrainingDto: CreateTrainingDto): Promise<Training> {
+  async create(
+    createTrainingDto: CreateTrainingDto,
+    meta: UserMetadata,
+  ): Promise<Training> {
     const training = new Training();
 
     if (createTrainingDto.trainer) {
@@ -116,6 +120,13 @@ export class TrainingsService extends BasicCrudService<Training> {
     training.status = TrainingStatus.FUTURE;
     training.NotifiedAbout = false;
 
+    if (
+      (meta.userRole == 'USER' && training.trainer !== null) ||
+      (meta.userRole == 'USER' && training.trainee.id !== meta.userId)
+    ) {
+      throw new BadRequestException();
+    }
+
     await this.entityManager.persistAndFlush(training);
     return training;
   }
@@ -176,11 +187,21 @@ export class TrainingsService extends BasicCrudService<Training> {
   async update(
     id: number,
     updateTrainingDto: UpdateTrainingDto,
+    meta: UserMetadata,
   ): Promise<Training> {
     const training = await this.findOne(id);
 
     if (!training) {
       throw new NotFoundException(`Training with ID ${id} not found`);
+    }
+
+    if (
+      (meta.userRole == 'USER' && training.trainee.id !== meta.userId) ||
+      (meta.userRole == 'TRAINER' &&
+        training.trainer !== null &&
+        training.trainer.id !== meta.userId)
+    ) {
+      throw new BadRequestException();
     }
 
     this.entityManager.assign(training, updateTrainingDto);
@@ -189,11 +210,22 @@ export class TrainingsService extends BasicCrudService<Training> {
     return training;
   }
 
-  async remove(id: number): Promise<void> {
+  async remove(id: number, meta: UserMetadata): Promise<void> {
     const training = await this.findOne(id);
+
     if (!training) {
       throw new NotFoundException(`Training with ID ${id} not found`);
     }
+
+    if (
+      (meta.userRole == 'USER' && training.trainee.id !== meta.userId) ||
+      (meta.userRole == 'TRAINER' &&
+        training.trainer !== null &&
+        training.trainer.id !== meta.userId)
+    ) {
+      throw new BadRequestException();
+    }
+
     await this.entityManager.removeAndFlush(training);
   }
 }

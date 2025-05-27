@@ -12,6 +12,10 @@ export class StatsReport extends BasicEntity {
 
   @ManyToOne({ entity: () => User, inversedBy: 'statsReports' })
   @ApiProperty({ type: () => User })
+  madeFor?: User;
+
+  @ManyToOne({ entity: () => User, inversedBy: 'statsReports' })
+  @ApiProperty({ type: () => User })
   madeBy: User;
 
   @Property()
@@ -21,4 +25,16 @@ export class StatsReport extends BasicEntity {
   @Property()
   @ApiProperty()
   data: Record<string, any>;
+
+  @Property({ nullable: true })
+  @ApiProperty()
+  monthsNum?: number;
+
+  @Property({ nullable: true })
+  @ApiProperty()
+  startDate?: Date;
+
+  @Property({ nullable: true })
+  @ApiProperty()
+  endDate?: Date;
 }

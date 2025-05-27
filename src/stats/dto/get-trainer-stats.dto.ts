@@ -13,5 +13,5 @@ export class GetTrainerStatsDto {
 
   @ApiProperty({ required: true })
   @IsNumber()
-  trainerId: number;
-} 
+  madeFor: number;
+}

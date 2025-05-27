@@ -16,6 +16,11 @@ import { GroupsService } from './groups.service';
 import { FindGroupArgs } from './args/find-group.args';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { RequiredRole } from '../auth/decorator/required-role.decorator';
+import { UserRole } from '../users/enums/user-role.enum';
+import { UserMeta } from '../auth/decorator/user-meta.decorator';
+import { UserMetadata } from '../auth/types/user-metadata.type';
 
 @Controller('groups')
 @UseGuards(AuthGuard)
@@ -25,6 +30,8 @@ export class GroupsController {
 
   @Get()
   @ApiBearerAuth()
+  @UseGuards(RolesGuard)
+  @RequiredRole(UserRole.ADMIN)
   @ApiOkResponse({
     description: 'Returns all groups',
   })
@@ -43,19 +50,24 @@ export class GroupsController {
   @ApiOkResponse({
     description: 'Creates a group',
   })
-  createGroup(@Body() dto: CreateGroupDto) {
-    return this.groupsService.create(dto);
+  createGroup(@Body() dto: CreateGroupDto, @UserMeta() meta: UserMetadata) {
+    return this.groupsService.create(dto, meta.userId);
   }
 
   @ApiBearerAuth()
   @Patch()
-  update(@Body() dto: UpdateGroupDto) {
-    return this.groupsService.update(dto);
+  @UseGuards(RolesGuard)
+  @RequiredRole(UserRole.ADMIN)
+  update(@Body() dto: UpdateGroupDto, @UserMeta() meta: UserMetadata) {
+    return this.groupsService.update(dto, meta);
   }
 
   @ApiBearerAuth()
   @Delete(':id')
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.groupsService.remove(id);
+  remove(
+    @Param('id', ParseIntPipe) id: number,
+    @UserMeta() meta: UserMetadata,
+  ) {
+    return this.groupsService.remove(id, meta);
   }
 }

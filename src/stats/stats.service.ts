@@ -5,7 +5,7 @@ import { CacheService } from '../cache/cache.service';
 import { EntityManager } from '@mikro-orm/core';
 import { StatsReportRepository } from './repositories/stats-report.repository';
 import { User } from '../users/entities/user.entity';
-import { CreateStatsReportDto } from './dto/create-stats-report';
+import { CreateStatsReportDto } from './dto/create-stats-report.dto';
 import { UsersService } from '../users/users.service';
 import { TrainingsService } from '../trainings/trainings.service';
 import { TrainingStatus } from '../trainings/enums/training-status';
@@ -13,6 +13,7 @@ import { FindTrainingArgs } from '../trainings/args/find-training.args';
 import { ExerciseSetService } from '../exercise-set/exercise-set.service';
 import { GetGeneralStatsDto } from './dto/get-general-stats.dto';
 import { GetTrainerStatsDto } from './dto/get-trainer-stats.dto';
+import { UserMetadata } from '../auth/types/user-metadata.type';
 
 @Injectable()
 export class StatsReportService extends BasicCrudService<StatsReport> {
@@ -36,22 +37,37 @@ export class StatsReportService extends BasicCrudService<StatsReport> {
     });
   }
 
-  async createAttendanceReport(dto: CreateStatsReportDto, usedId: number) {
-    const madeBy = await this.usersService.findOne(usedId);
-    if (!madeBy) {
-      throw new Error(`User with id ${usedId} not found`);
+  async createAttendanceReport(dto: CreateStatsReportDto, meta: UserMetadata) {
+    if (!dto.madeFor || !dto.monthsNum) {
+      throw new Error('You must specify a user to generate report for');
     }
+
+    const madeFor = await this.usersService.findOne(dto.madeFor);
+
+    if (!madeFor) {
+      throw new Error(`User with id ${meta.userId} not found`);
+    }
+
+    if (meta.userRole == 'USER' && dto.madeFor != meta.userId) {
+      throw new Error('You are not allowed to create this report');
+    }
+
+    if (meta.userRole == 'TRAINER' && madeFor.trainerId != meta.userId) {
+      throw new Error('You are not allowed to create this report');
+    }
+
+    const madeBy = await this.usersService.findOneOrFail(meta.userId);
 
     const individualArgs = new FindTrainingArgs();
     individualArgs.status = TrainingStatus.FINISHED;
-    individualArgs.trainee = usedId;
+    individualArgs.trainee = madeFor.id;
     const individualTrainings =
       await this.trainingsService.complexSearch(individualArgs);
 
     const groupArgs = new FindTrainingArgs();
     groupArgs.status = TrainingStatus.FINISHED;
-    if (madeBy.group) {
-      groupArgs.traineeGroup = madeBy.group.id;
+    if (madeFor.group) {
+      groupArgs.traineeGroup = madeFor.group.id;
     }
     const groupTrainings = await this.trainingsService.complexSearch(groupArgs);
 
@@ -135,7 +151,11 @@ export class StatsReportService extends BasicCrudService<StatsReport> {
     return this.create(dto, madeBy, data);
   }
 
-  async getGeneralStats(dto: GetGeneralStatsDto) {
+  async getGeneralStats(dto: GetGeneralStatsDto, meta: UserMetadata) {
+    const madeBy = await this.usersService.findOneOrFail(meta.userId);
+
+    const creationDto: CreateStatsReportDto = new CreateStatsReportDto();
+
     let startDate: Date;
     let endDate: Date;
 
@@ -145,8 +165,11 @@ export class StatsReportService extends BasicCrudService<StatsReport> {
     } else {
       endDate = new Date();
       startDate = new Date();
-      startDate.setMonth(endDate.getMonth() - 1); // По умолчанию за последний месяц
+      startDate.setMonth(endDate.getMonth() - 1);
     }
+
+    creationDto.startDate = startDate;
+    creationDto.endDate = endDate;
 
     const trainingArgs = new FindTrainingArgs();
     trainingArgs.status = TrainingStatus.FINISHED;
@@ -159,17 +182,22 @@ export class StatsReportService extends BasicCrudService<StatsReport> {
     const allUsers = await this.usersService.complexSearch({});
 
     const newUsers = allUsers.filter(
-      (user) => user.createdAt && user.createdAt >= startDate && user.createdAt <= endDate,
+      (user) =>
+        user.createdAt &&
+        user.createdAt >= startDate &&
+        user.createdAt <= endDate,
     );
 
     const activeUserIds = new Set(
-      trainingsInPeriod.map((training) => training.trainee?.id).filter((id): id is number => id !== undefined),
+      trainingsInPeriod
+        .map((training) => training.trainee?.id)
+        .filter((id): id is number => id !== undefined),
     );
     const inactiveUsers = allUsers.filter(
       (user) => user.id && !activeUserIds.has(user.id),
     );
 
-    return {
+    const data = {
       period: {
         start: startDate,
         end: endDate,
@@ -183,9 +211,19 @@ export class StatsReportService extends BasicCrudService<StatsReport> {
         groupTrainings: trainingsInPeriod.filter((t) => t.traineeGroup).length,
       },
     };
+
+    return this.create(creationDto, madeBy, data);
   }
 
-  async getTrainerStats(dto: GetTrainerStatsDto) {
+  async getTrainerStats(dto: GetTrainerStatsDto, meta: UserMetadata) {
+    if (meta.userRole != 'ADMIN' && meta.userId != dto.madeFor) {
+      throw new Error('You are not allowed to create this report');
+    }
+
+    const creationDto: CreateStatsReportDto = new CreateStatsReportDto();
+    const madeBy = await this.usersService.findOneOrFail(meta.userId);
+    creationDto.madeFor = dto.madeFor;
+
     let startDate: Date;
     let endDate: Date;
 
@@ -195,12 +233,15 @@ export class StatsReportService extends BasicCrudService<StatsReport> {
     } else {
       endDate = new Date();
       startDate = new Date();
-      startDate.setMonth(endDate.getMonth() - 1); 
+      startDate.setMonth(endDate.getMonth() - 1);
     }
+
+    creationDto.startDate = startDate;
+    creationDto.endDate = endDate;
 
     const trainingArgs = new FindTrainingArgs();
     trainingArgs.status = TrainingStatus.FINISHED;
-    trainingArgs.trainer = dto.trainerId;
+    trainingArgs.trainer = dto.madeFor;
     const allTrainings =
       await this.trainingsService.complexSearch(trainingArgs);
     const trainingsInPeriod = allTrainings.filter(
@@ -226,7 +267,7 @@ export class StatsReportService extends BasicCrudService<StatsReport> {
       .filter(([_, date]) => date >= startDate && date <= endDate)
       .map(([id]) => id);
 
-    return {
+    const data = {
       period: {
         start: startDate,
         end: endDate,
@@ -240,5 +281,7 @@ export class StatsReportService extends BasicCrudService<StatsReport> {
         groupTrainings: trainingsInPeriod.filter((t) => t.traineeGroup).length,
       },
     };
+
+    return this.create(creationDto, madeBy, data);
   }
 }

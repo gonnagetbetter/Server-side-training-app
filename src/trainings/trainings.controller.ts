@@ -19,7 +19,8 @@ import { Training } from './entities/training.entity';
 import { FindTrainingArgs } from './args/find-training.args';
 import { CreateTrainingDto } from './dto/create-training.dto';
 import { UpdateTrainingDto } from './dto/update-training.dto';
-import { TrainingStatus } from './enums/training-status';
+import { UserMetadata } from '../auth/types/user-metadata.type';
+import { UserMeta } from '../auth/decorator/user-meta.decorator';
 
 @Controller('trainings')
 @UseGuards(AuthGuard)
@@ -33,12 +34,17 @@ export class TrainingsController {
     description: 'Creates a new training',
     type: Training,
   })
-  create(@Body() createTrainingDto: CreateTrainingDto) {
-    return this.trainingsService.create(createTrainingDto);
+  create(
+    @Body() createTrainingDto: CreateTrainingDto,
+    @UserMeta() meta: UserMetadata,
+  ) {
+    return this.trainingsService.create(createTrainingDto, meta);
   }
 
   @Get()
   @ApiBearerAuth()
+  @UseGuards(RolesGuard)
+  @RequiredRole(UserRole.ADMIN)
   @ApiOkResponse({
     description: 'Returns all trainings with filtering options',
     type: Training,
@@ -50,6 +56,8 @@ export class TrainingsController {
 
   @Get(':id')
   @ApiBearerAuth()
+  @UseGuards(RolesGuard)
+  @RequiredRole(UserRole.ADMIN)
   @ApiOkResponse({
     description: 'Returns a training by ID',
     type: Training,
@@ -59,8 +67,6 @@ export class TrainingsController {
   }
 
   @Patch(':id')
-  @UseGuards(RolesGuard)
-  @RequiredRole(UserRole.TRAINER)
   @ApiBearerAuth()
   @ApiOkResponse({
     description: 'Updates a training',
@@ -69,18 +75,17 @@ export class TrainingsController {
   update(
     @Param('id') id: string,
     @Body() updateTrainingDto: UpdateTrainingDto,
+    @UserMeta() meta: UserMetadata,
   ) {
-    return this.trainingsService.update(+id, updateTrainingDto);
+    return this.trainingsService.update(+id, updateTrainingDto, meta);
   }
 
   @Delete(':id')
-  @UseGuards(RolesGuard)
-  @RequiredRole(UserRole.ADMIN)
   @ApiBearerAuth()
   @ApiOkResponse({
     description: 'Deletes a training',
   })
-  remove(@Param('id') id: string) {
-    return this.trainingsService.remove(+id);
+  remove(@Param('id') id: string, @UserMeta() meta: UserMetadata) {
+    return this.trainingsService.remove(+id, meta);
   }
 }

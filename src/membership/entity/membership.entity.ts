@@ -2,9 +2,10 @@ import { Entity, Property, PrimaryKey, ManyToOne, Enum } from '@mikro-orm/core';
 import { ApiProperty } from '@nestjs/swagger';
 import { User } from '../../users/entities/user.entity';
 import { MembershipStatus } from '../enum/membership-status.enum';
+import { BasicEntity } from '../../common/basic-entity';
 
 @Entity()
-export class Membership {
+export class Membership extends BasicEntity {
   @PrimaryKey({ autoincrement: true })
   @ApiProperty()
   id: number;
@@ -13,9 +14,9 @@ export class Membership {
   @ApiProperty({ type: () => User })
   user: User;
 
-  @Property({ type: 'datetime' })
+  @Property({ type: 'datetime', nullable: true })
   @ApiProperty()
-  startDate: Date;
+  startDate?: Date;
 
   @Property({ type: 'datetime', nullable: true })
   @ApiProperty({ required: false })

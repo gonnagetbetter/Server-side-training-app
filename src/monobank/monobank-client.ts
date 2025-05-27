@@ -45,26 +45,13 @@ export class MonobankClient {
 
       return { invoiceId, pageUrl };
     } catch (e) {
-      console.error(e);
-      let errorMessage: string;
-      const responseData = e.response.data;
-
-      if (responseData.errCode && responseData.errText) {
-        const { errCode, errText } = e.responseData;
-
-        errorMessage = `Error creating invoice: ${errText} (code: ${errCode})`;
-      } else {
-        errorMessage = e.message;
-      }
-
       this.logger.error(e);
-      this.logger.error(errorMessage);
 
-      throw new InternalServerErrorException(errorMessage);
+      throw new InternalServerErrorException(e.message);
     }
   }
 
-  public async getPublicKey(token: string): Promise<string> {
+  public async getPublicKey(token: string): Promise<string | undefined> {
     try {
       const response = await axios.get(
         `${this.config.apiUrl}/api/merchant/pubkey`,
@@ -74,24 +61,14 @@ export class MonobankClient {
           },
         },
       );
-
-      return response.data.key;
-    } catch (e) {
-      let errorMessage: string;
-      const responseData = e.response.data;
-
-      if (responseData.errCode && responseData.errText) {
-        const { errCode, errText } = responseData;
-
-        errorMessage = `Error getting public key: ${errText} (code: ${errCode})`;
-      } else {
-        errorMessage = e.message;
+      if (response.data.key) {
+        return response.data.key;
       }
-
+      return undefined;
+    } catch (e) {
       this.logger.error(e);
-      this.logger.error(errorMessage);
 
-      throw new InternalServerErrorException(errorMessage);
+      throw new InternalServerErrorException(e.message);
     }
   }
 }

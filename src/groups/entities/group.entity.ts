@@ -1,4 +1,10 @@
-import { Entity, OneToMany, PrimaryKey, Property } from '@mikro-orm/core';
+import {
+  Entity,
+  OneToMany,
+  OneToOne,
+  PrimaryKey,
+  Property,
+} from '@mikro-orm/core';
 import { BasicEntity } from '../../common/basic-entity';
 import { ApiProperty } from '@nestjs/swagger';
 import { GroupRepository } from '../repositories/group.repository';
@@ -17,4 +23,8 @@ export class Group extends BasicEntity {
   @Property()
   @ApiProperty()
   name: string;
+
+  @OneToOne({ entity: () => User, nullable: true })
+  @ApiProperty({ type: () => User })
+  creator: User;
 }

@@ -1,21 +1,15 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  ParseIntPipe,
-  Post,
-  Query,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { StatsReportService } from './stats.service';
-import { CreateStatsReportDto } from './dto/create-stats-report';
+import { CreateStatsReportDto } from './dto/create-stats-report.dto';
 import { UserMetadata } from '../auth/types/user-metadata.type';
 import { UserMeta } from '../auth/decorator/user-meta.decorator';
 import { GetGeneralStatsDto } from './dto/get-general-stats.dto';
 import { GetTrainerStatsDto } from './dto/get-trainer-stats.dto';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { RequiredRole } from '../auth/decorator/required-role.decorator';
+import { UserRole } from '../users/enums/user-role.enum';
 
 @Controller('stats')
 @UseGuards(AuthGuard)
@@ -23,33 +17,43 @@ import { GetTrainerStatsDto } from './dto/get-trainer-stats.dto';
 export class StatsController {
   constructor(private readonly statsReportService: StatsReportService) {}
 
-  @Post('anual')
+  @Post('attendanceReport')
   @ApiBearerAuth()
   @ApiOkResponse({
-    description: 'Returns anual report',
+    description: 'Returns attendance report report',
   })
   createAttendanceReport(
     @UserMeta() meta: UserMetadata,
     @Body() dto: CreateStatsReportDto,
   ) {
-    return this.statsReportService.createAttendanceReport(dto, meta.userId);
+    return this.statsReportService.createAttendanceReport(dto, meta);
   }
 
   @Post('general')
   @ApiBearerAuth()
+  @UseGuards(RolesGuard)
+  @RequiredRole(UserRole.ADMIN)
   @ApiOkResponse({
     description: 'Returns general statistics for the specified period',
   })
-  getGeneralStats(@Body() dto: GetGeneralStatsDto) {
-    return this.statsReportService.getGeneralStats(dto);
+  getGeneralStats(
+    @Body() dto: GetGeneralStatsDto,
+    @UserMeta() meta: UserMetadata,
+  ) {
+    return this.statsReportService.getGeneralStats(dto, meta);
   }
 
-  @Get('trainer stats')
+  @Get('trainerStats')
   @ApiBearerAuth()
+  @UseGuards(RolesGuard)
+  @RequiredRole(UserRole.ADMIN || UserRole.TRAINER)
   @ApiOkResponse({
     description: 'Returns trainer statistics for the specified period',
   })
-  getTrainerStats(@Query() dto: GetTrainerStatsDto) {
-    return this.statsReportService.getTrainerStats(dto);
+  getTrainerStats(
+    @Query() dto: GetTrainerStatsDto,
+    @UserMeta() meta: UserMetadata,
+  ) {
+    return this.statsReportService.getTrainerStats(dto, meta);
   }
 }

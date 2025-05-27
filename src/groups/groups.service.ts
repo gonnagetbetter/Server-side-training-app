@@ -8,6 +8,7 @@ import { CreateGroupDto } from './dto/create-group.dto';
 import { FindGroupArgs } from './args/find-group.args';
 import { UpdateGroupDto } from './dto/update-group.dto';
 import { UsersService } from '../users/users.service';
+import { UserMetadata } from '../auth/types/user-metadata.type';
 
 @Injectable()
 export class GroupsService extends BasicCrudService<Group> {
@@ -37,24 +38,37 @@ export class GroupsService extends BasicCrudService<Group> {
     return this.findOneOrFail(filter);
   }
 
-  async create(dto: CreateGroupDto) {
+  async create(dto: CreateGroupDto, creatorId: number) {
+    const creator = await this.usersService.findOne(creatorId);
+    if (!creator) {
+      throw new Error(`User with id ${creatorId} not found`);
+    }
     return this.createOne({
       ...dto,
       users: [],
+      creator: creator,
     });
   }
 
-  async update(dto: UpdateGroupDto) {
-    const { id } = dto;
-    const filter: FilterQuery<Group> = { id };
+  async update(dto: UpdateGroupDto, meta: UserMetadata) {
+    const group = await this.findOneSafe(dto.id);
+    if (meta.userRole == 'ADMIN' || group.creator.id == meta.userId) {
+      const { id } = dto;
+      const filter: FilterQuery<Group> = { id };
 
-    return this.updateOne(filter, dto);
+      return this.updateOne(filter, dto);
+    }
+    throw new Error('You are not allowed to update this group');
   }
 
-  async remove(id: number) {
-    const filter: FilterQuery<Group> = { id };
+  async remove(id: number, meta: UserMetadata) {
+    const group = await this.findOneSafe(id);
+    if (meta.userRole == 'ADMIN' || group.creator.id == meta.userId) {
+      const filter: FilterQuery<Group> = { id };
 
-    return this.deleteOne(filter);
+      return this.deleteOne(filter);
+    }
+    throw new Error('You are not allowed to delete this group');
   }
 
   async findAllMembers(group: Group) {

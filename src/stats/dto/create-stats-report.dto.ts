@@ -7,7 +7,7 @@ export class CreateStatsReportDto {
   @ApiProperty({
     description: 'Exercise set ID',
   })
-  monthsNum: number;
+  monthsNum?: number;
 
   @ApiProperty({
     required: false,
@@ -30,5 +30,6 @@ export class CreateStatsReportDto {
     description: "User's ID",
   })
   @IsNumber()
-  userId: number;
+  @IsOptional()
+  madeFor?: number;
 }

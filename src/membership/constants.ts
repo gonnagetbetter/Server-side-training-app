@@ -1,0 +1,1 @@
+export const MONTHLY_MEMBERSHIP_PRICE = 110000;

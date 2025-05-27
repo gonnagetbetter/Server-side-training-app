@@ -1,6 +1,11 @@
-import { Injectable, NotFoundException, Logger, Inject } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  Inject,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@mikro-orm/nestjs';
-import { EntityRepository } from '@mikro-orm/core';
+import { EntityManager } from '@mikro-orm/core';
 import { CreateMembershipDto } from './dto/create-membership.dto';
 import { UsersService } from '../users/users.service';
 import { MembershipStatus } from './enum/membership-status.enum';
@@ -8,30 +13,55 @@ import { MonobankClient } from '../monobank/monobank-client';
 import { Membership } from './entity/membership.entity';
 import { MONOBANK_CONFIG } from '../monobank/constants';
 import { IMonobankConfig } from '../monobank/interface/monobank-config.interface';
+import { BasicCrudService } from '../common/basic-crud.service';
+import { MembershipRepository } from './repositories/membership.repository';
+import { CacheService } from '../cache/cache.service';
+import { MONTHLY_MEMBERSHIP_PRICE } from './constants';
+import { UserMetadata } from '../auth/types/user-metadata.type';
 
 @Injectable()
-export class MembershipService {
+export class MembershipService extends BasicCrudService<Membership> {
   private readonly logger = new Logger(MembershipService.name);
 
   constructor(
     @Inject(MONOBANK_CONFIG) private readonly config: IMonobankConfig,
     @InjectRepository(Membership)
-    private readonly membershipRepo: EntityRepository<Membership>,
+    protected readonly membershipRepository: MembershipRepository,
     private readonly userService: UsersService,
     private readonly monobankClient: MonobankClient,
-  ) {}
+    protected readonly cacheService: CacheService,
+    protected readonly entityManager: EntityManager,
+  ) {
+    super(Membership, membershipRepository, cacheService, entityManager);
+  }
 
-  async create(dto: CreateMembershipDto): Promise<{ paymentUrl: string }> {
-    const user = await this.userService.findOneOrFail(dto.userId);
+  async create(
+    dto: CreateMembershipDto,
+    meta: UserMetadata,
+  ): Promise<{ paymentUrl: string }> {
+    const user = await this.userService.findOneOrFail(meta.userId);
+
+    const membership = await this.findOne({ user });
+
+    if (
+      membership &&
+      membership.status == 'active' &&
+      membership.endDate &&
+      membership.endDate > new Date()
+    ) {
+      throw new BadRequestException('You have already paid for membership');
+    }
+
+    const amount = dto.monthNum * MONTHLY_MEMBERSHIP_PRICE;
 
     const invoicePayload = {
-      amount: dto.amount * 100, // kopiyka
+      amount: amount,
       ccy: 980, // UAH
       redirectUrl: 'http://localhost:3001/',
       merchantPaymInfo: {
         reference: user.id.toString(),
         destination: `Оплата абонемента`,
-        comment: `Абонемент для користувача ID: ${dto.userId}`,
+        comment: `Абонемент для користувача ID: ${meta.userId}`,
       },
       webhookUrl: this.config.webhookUrl,
     };
@@ -42,19 +72,17 @@ export class MembershipService {
     });
 
     const now = new Date();
-    const membership = this.membershipRepo.create({
+    await this.createOne({
       user,
-      amount: dto.amount,
-      startDate: dto.startDate ? new Date(dto.startDate) : now,
-      endDate: dto.endDate ? new Date(dto.endDate) : undefined,
+      amount: amount,
+      startDate: undefined,
+      endDate: undefined,
       status: MembershipStatus.PENDING,
       invoiceId,
       paymentUrl: pageUrl,
       createdAt: now,
       updatedAt: now,
     });
-
-    await this.membershipRepo.persistAndFlush(membership);
 
     return { paymentUrl: pageUrl };
   }
@@ -63,18 +91,37 @@ export class MembershipService {
     this.logger.debug(
       `Got data from monobank webhook: ${JSON.stringify(data)}`,
     );
-    const { invoiceId, status } = data;
+    const { invoiceId, status, amount } = data;
 
-    const membership = await this.membershipRepo.findOne({ invoiceId });
-    if (!membership) throw new NotFoundException('Membership not found');
+    const membership = await this.findOneOrFail({ invoiceId });
 
     if (status === 'success') {
+      const monthNum = amount / MONTHLY_MEMBERSHIP_PRICE;
+      membership.startDate = new Date();
+      membership.endDate = new Date(
+        membership.startDate.setMonth(
+          membership.startDate.getMonth() + monthNum,
+        ),
+      );
       membership.status = MembershipStatus.ACTIVE;
       membership.paidAt = new Date();
+      membership.updatedAt = new Date();
     } else if (status === 'failure') {
       membership.status = MembershipStatus.CANCELLED;
     }
+    await this.updateOne({ id: membership.id }, membership);
+  }
 
-    await this.membershipRepo.flush();
+  async getMembership(id: number) {
+    const result = await this.findOneOrFail({ id });
+    if (
+      result.status == 'active' &&
+      result.endDate &&
+      result.endDate < new Date()
+    ) {
+      result.status = MembershipStatus.EXPIRED;
+      await this.updateOne({ id }, result);
+    }
+    return await this.findOne({ id });
   }
 }
