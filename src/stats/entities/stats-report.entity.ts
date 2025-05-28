@@ -10,7 +10,7 @@ export class StatsReport extends BasicEntity {
   @ApiProperty()
   id: number;
 
-  @ManyToOne({ entity: () => User, inversedBy: 'statsReports' })
+  @ManyToOne({ entity: () => User, inversedBy: 'statsReports', nullable: true })
   @ApiProperty({ type: () => User })
   madeFor?: User;
 
@@ -22,7 +22,7 @@ export class StatsReport extends BasicEntity {
   @ApiProperty()
   createdAt: Date;
 
-  @Property()
+  @Property({ type: 'jsonb' })
   @ApiProperty()
   data: Record<string, any>;
 

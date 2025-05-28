@@ -43,7 +43,7 @@ export class StatsController {
     return this.statsReportService.getGeneralStats(dto, meta);
   }
 
-  @Get('trainerStats')
+  @Post('trainerStats')
   @ApiBearerAuth()
   @UseGuards(RolesGuard)
   @RequiredRole(UserRole.ADMIN || UserRole.TRAINER)
@@ -51,7 +51,7 @@ export class StatsController {
     description: 'Returns trainer statistics for the specified period',
   })
   getTrainerStats(
-    @Query() dto: GetTrainerStatsDto,
+    @Body() dto: GetTrainerStatsDto,
     @UserMeta() meta: UserMetadata,
   ) {
     return this.statsReportService.getTrainerStats(dto, meta);

@@ -2,11 +2,21 @@ import { IsEmail, IsString, MaxLength, MinLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class SignInDto {
-  @ApiProperty({ required: true })
+  @ApiProperty({ 
+    required: true,
+    description: 'User email address',
+    example: 'user@example.com',
+  })
   @IsEmail()
   email: string;
 
-  @ApiProperty({ required: true })
+  @ApiProperty({ 
+    required: true,
+    description: 'User password (8-20 characters)',
+    example: 'password123',
+    minLength: 8,
+    maxLength: 20,
+  })
   @IsString({
     message: 'Password must be a string',
   })

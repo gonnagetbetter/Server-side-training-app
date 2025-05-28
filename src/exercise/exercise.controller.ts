@@ -15,7 +15,7 @@ import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { ExerciseService } from './exercise.service';
 import { FindExerciseArgs } from './args/find-exercise.args';
 import { CreateExerciseDto } from './dto/create-exercise.dto';
-import { UpdateExerciseDto } from './dto/update-exersice.dto';
+import { UpdateExerciseDto } from './dto/update-exercise.dto';
 
 @Controller('exercise')
 @UseGuards(AuthGuard)

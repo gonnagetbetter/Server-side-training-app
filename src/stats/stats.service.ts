@@ -11,9 +11,12 @@ import { TrainingsService } from '../trainings/trainings.service';
 import { TrainingStatus } from '../trainings/enums/training-status';
 import { FindTrainingArgs } from '../trainings/args/find-training.args';
 import { ExerciseSetService } from '../exercise-set/exercise-set.service';
+import { ExerciseService } from '../exercise/exercise.service';
 import { GetGeneralStatsDto } from './dto/get-general-stats.dto';
 import { GetTrainerStatsDto } from './dto/get-trainer-stats.dto';
 import { UserMetadata } from '../auth/types/user-metadata.type';
+import { Training } from '../trainings/entities/training.entity';
+import { GroupsService } from '../groups/groups.service';
 
 @Injectable()
 export class StatsReportService extends BasicCrudService<StatsReport> {
@@ -24,6 +27,8 @@ export class StatsReportService extends BasicCrudService<StatsReport> {
     protected readonly usersService: UsersService,
     protected readonly trainingsService: TrainingsService,
     protected readonly exerciseSetService: ExerciseSetService,
+    protected readonly exerciseService: ExerciseService,
+    protected readonly groupsService: GroupsService,
   ) {
     super(StatsReport, statsReportRepository, cacheService, entityManager);
   }
@@ -52,26 +57,30 @@ export class StatsReportService extends BasicCrudService<StatsReport> {
       throw new Error('You are not allowed to create this report');
     }
 
-    if (meta.userRole == 'TRAINER' && madeFor.trainerId != meta.userId) {
+    if (meta.userRole == 'TRAINER' && madeFor.trainer.id != meta.userId) {
       throw new Error('You are not allowed to create this report');
     }
 
     const madeBy = await this.usersService.findOneOrFail(meta.userId);
+
+    const allTrainings: Training[] = [];
 
     const individualArgs = new FindTrainingArgs();
     individualArgs.status = TrainingStatus.FINISHED;
     individualArgs.trainee = madeFor.id;
     const individualTrainings =
       await this.trainingsService.complexSearch(individualArgs);
+    allTrainings.push(...individualTrainings);
 
-    const groupArgs = new FindTrainingArgs();
-    groupArgs.status = TrainingStatus.FINISHED;
     if (madeFor.group) {
+      const groupArgs = new FindTrainingArgs();
+      groupArgs.status = TrainingStatus.FINISHED;
       groupArgs.traineeGroup = madeFor.group.id;
-    }
-    const groupTrainings = await this.trainingsService.complexSearch(groupArgs);
+      const groupTrainings =
+        await this.trainingsService.complexSearch(groupArgs);
 
-    const allTrainings = [...individualTrainings, ...groupTrainings];
+      allTrainings.push(...groupTrainings);
+    }
 
     let startDate: Date;
     let endDate: Date;
@@ -93,22 +102,28 @@ export class StatsReportService extends BasicCrudService<StatsReport> {
 
     for (const training of trainingsInPeriod) {
       if (training.ExerciseSetId) {
-        const exerciseSet = await this.exerciseSetService.findOne(
+        const exerciseSetIds = await this.exerciseSetService.getExerciseIds(
           training.ExerciseSetId,
         );
-        if (exerciseSet && exerciseSet.exercises) {
-          for (const exercise of exerciseSet.exercises) {
-            if (!exerciseStats.has(exercise.id)) {
-              exerciseStats.set(exercise.id, {
-                name: exercise.name,
-                minWeight: exercise.startWeight,
-                maxWeight: exercise.endWeight,
+        if (exerciseSetIds) {
+          for (const exerciseId of exerciseSetIds) {
+            const exercise = await this.exerciseService.findOneSafe(exerciseId);
+            const currentWeight = exercise.endWeight;
+
+            if (!exerciseStats.has(exercise.name)) {
+              exerciseStats.set(exercise.name, {
+                minWeight: currentWeight,
+                maxWeight: currentWeight,
                 count: 1,
               });
             } else {
-              const stats = exerciseStats.get(exercise.id);
-              stats.minWeight = Math.min(stats.minWeight, exercise.startWeight);
-              stats.maxWeight = Math.max(stats.maxWeight, exercise.endWeight);
+              const stats = exerciseStats.get(exercise.name);
+              if (currentWeight < stats.minWeight) {
+                stats.minWeight = currentWeight;
+              }
+              if (currentWeight > stats.maxWeight) {
+                stats.maxWeight = currentWeight;
+              }
               stats.count++;
             }
           }
@@ -136,15 +151,12 @@ export class StatsReportService extends BasicCrudService<StatsReport> {
         individualTrainings: individualTrainings.filter(
           (t) => t.date >= startDate && t.date <= endDate,
         ).length,
-        groupTrainings: groupTrainings.filter(
-          (t) => t.date >= startDate && t.date <= endDate,
-        ).length,
+        groupTrainings: trainingsInPeriod.length - individualTrainings.length,
       },
-      exercises: Array.from(exerciseStats.values()).map((stats) => ({
-        name: stats.name,
+      exercises: Array.from(exerciseStats.entries()).map(([name, stats]) => ({
+        name,
         minWeight: stats.minWeight,
         maxWeight: stats.maxWeight,
-        timesPerformed: stats.count,
       })),
     };
 
@@ -159,7 +171,11 @@ export class StatsReportService extends BasicCrudService<StatsReport> {
     let startDate: Date;
     let endDate: Date;
 
-    if (dto.startDate && dto.endDate) {
+    if (dto.monthsNum) {
+      endDate = new Date();
+      startDate = new Date();
+      startDate.setMonth(endDate.getMonth() - dto.monthsNum);
+    } else if (dto.startDate && dto.endDate) {
       startDate = new Date(dto.startDate);
       endDate = new Date(dto.endDate);
     } else {
@@ -212,6 +228,8 @@ export class StatsReportService extends BasicCrudService<StatsReport> {
       },
     };
 
+    console.log(data);
+
     return this.create(creationDto, madeBy, data);
   }
 
@@ -227,7 +245,11 @@ export class StatsReportService extends BasicCrudService<StatsReport> {
     let startDate: Date;
     let endDate: Date;
 
-    if (dto.startDate && dto.endDate) {
+    if (dto.monthsNum) {
+      endDate = new Date();
+      startDate = new Date();
+      startDate.setMonth(endDate.getMonth() - dto.monthsNum);
+    } else if (dto.startDate && dto.endDate) {
       startDate = new Date(dto.startDate);
       endDate = new Date(dto.endDate);
     } else {
@@ -248,24 +270,34 @@ export class StatsReportService extends BasicCrudService<StatsReport> {
       (training) => training.date >= startDate && training.date <= endDate,
     );
 
-    const uniqueTrainees = new Set(
-      trainingsInPeriod.map((training) => training.trainee.id),
-    );
+    const uniqueTrainees = new Set<number>();
 
-    const firstTrainingDates = new Map();
-    for (const training of allTrainings) {
-      const traineeId = training.trainee.id;
-      if (
-        !firstTrainingDates.has(traineeId) ||
-        training.date < firstTrainingDates.get(traineeId)
-      ) {
-        firstTrainingDates.set(traineeId, training.date);
+    for (const training of trainingsInPeriod) {
+      if (training.trainee) {
+        uniqueTrainees.add(training.trainee.id);
+      } else if (training.traineeGroup) {
+        const groupMembers = await this.groupsService.findAllMembers(
+          training.traineeGroup,
+        );
+        groupMembers.forEach(
+          (member) => member.id && uniqueTrainees.add(member.id),
+        );
       }
     }
 
-    const newTrainees = Array.from(firstTrainingDates.entries())
-      .filter(([_, date]) => date >= startDate && date <= endDate)
-      .map(([id]) => id);
+    // Get all users from uniqueTrainees
+    const trainees = await Promise.all(
+      Array.from(uniqueTrainees).map((id) => this.usersService.findOne({ id })),
+    );
+
+    // Count new trainees
+    const newTrainees = trainees.filter(
+      (user) =>
+        user &&
+        user.createdAt &&
+        user.createdAt >= startDate &&
+        user.createdAt <= endDate,
+    ).length;
 
     const data = {
       period: {
@@ -274,7 +306,7 @@ export class StatsReportService extends BasicCrudService<StatsReport> {
       },
       totalTrainings: trainingsInPeriod.length,
       uniqueTrainees: uniqueTrainees.size,
-      newTrainees: newTrainees.length,
+      newTrainees,
       breakdown: {
         individualTrainings: trainingsInPeriod.filter((t) => !t.traineeGroup)
           .length,

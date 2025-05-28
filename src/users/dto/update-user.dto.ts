@@ -4,6 +4,7 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  IsEnum,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { UserRole } from '../enums/user-role.enum';
@@ -24,9 +25,9 @@ export class UpdateUserDto {
     example: UserRole.USER,
     required: false,
   })
-  @IsString()
+  @IsEnum(UserRole)
   @IsOptional()
-  role?: string;
+  role?: UserRole;
 
   @ApiProperty({
     description: 'ID of the trainer assigned to the user',

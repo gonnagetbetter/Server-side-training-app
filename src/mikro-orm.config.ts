@@ -16,7 +16,7 @@ export default defineConfig({
   allowGlobalContext: true,
   migrations: {
     tableName: 'orm_migrations',
-    path: 'src/migrations',
+    path: 'src/database/migrations',
     transactional: true,
     disableForeignKeys: true,
     allOrNothing: true,

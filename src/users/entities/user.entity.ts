@@ -47,7 +47,7 @@ export class User extends BasicEntity {
 
   @ManyToOne(() => User, { nullable: true })
   @ApiProperty({ type: () => User })
-  trainerId: number;
+  trainer: User;
 
   @ManyToOne(() => Group, { nullable: true })
   @ApiProperty({ type: () => Group })

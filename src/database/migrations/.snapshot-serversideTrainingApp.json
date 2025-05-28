@@ -259,8 +259,8 @@
           "length": 0,
           "mappedType": "datetime"
         },
-        "trainer_id_id": {
-          "name": "trainer_id_id",
+        "trainer_id": {
+          "name": "trainer_id",
           "type": "int",
           "unsigned": false,
           "autoincrement": false,
@@ -302,10 +302,10 @@
       ],
       "checks": [],
       "foreignKeys": {
-        "user_trainer_id_id_foreign": {
-          "constraintName": "user_trainer_id_id_foreign",
+        "user_trainer_id_foreign": {
+          "constraintName": "user_trainer_id_foreign",
           "columnNames": [
-            "trainer_id_id"
+            "trainer_id"
           ],
           "localTableName": "public.user",
           "referencedColumnNames": [
@@ -347,7 +347,7 @@
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
-          "nullable": false,
+          "nullable": true,
           "mappedType": "integer"
         },
         "made_by_id": {
@@ -371,12 +371,12 @@
         },
         "data": {
           "name": "data",
-          "type": "varchar(255)",
+          "type": "jsonb",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": false,
-          "mappedType": "string"
+          "mappedType": "json"
         },
         "months_num": {
           "name": "months_num",
@@ -433,6 +433,7 @@
             "id"
           ],
           "referencedTableName": "public.user",
+          "deleteRule": "set null",
           "updateRule": "cascade"
         },
         "stats_report_made_by_id_foreign": {
@@ -688,8 +689,8 @@
           "primary": false,
           "nullable": false,
           "enumItems": [
-            "individual",
-            "group"
+            "INDIVIDUAL",
+            "GROUP"
           ],
           "mappedType": "enum"
         },

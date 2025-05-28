@@ -7,7 +7,9 @@ export class UpdateExerciseDto extends PartialType(CreateExerciseDto) {
   @IsInt()
   @IsNotEmpty()
   @ApiProperty({
-    description: 'Exercise ID',
+    description: 'ID of the exercise to update',
+    example: 1,
+    required: true,
   })
   id: number;
-}
+} 

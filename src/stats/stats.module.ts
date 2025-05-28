@@ -7,6 +7,8 @@ import { StatsReport } from './entities/stats-report.entity';
 import { UsersModule } from '../users/users.module';
 import { TrainingsModule } from '../trainings/trainings.module';
 import { ExerciseSetModule } from '../exercise-set/exercise-set.module';
+import { ExerciseModule } from '../exercise/exercise.module';
+import { GroupsModule } from '../groups/groups.module';
 
 @Module({
   imports: [
@@ -15,6 +17,8 @@ import { ExerciseSetModule } from '../exercise-set/exercise-set.module';
     UsersModule,
     TrainingsModule,
     ExerciseSetModule,
+    ExerciseModule,
+    GroupsModule,
   ],
   controllers: [StatsController],
   providers: [StatsReportService],

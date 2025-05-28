@@ -6,7 +6,7 @@ import { Exercise } from './entities/exercise.entity';
 import { BasicCrudService } from '../common/basic-crud.service';
 import { CreateExerciseDto } from './dto/create-exercise.dto';
 import { FindExerciseArgs } from './args/find-exercise.args';
-import { UpdateExerciseDto } from './dto/update-exersice.dto';
+import { UpdateExerciseDto } from './dto/update-exercise.dto';
 
 @Injectable()
 export class ExerciseService extends BasicCrudService<Exercise> {

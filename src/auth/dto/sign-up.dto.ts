@@ -7,6 +7,8 @@ export class SignUpDto extends SignInDto {
   @IsNotEmpty()
   @ApiProperty({
     description: 'Full name of the user',
+    example: 'John Doe',
+    required: true,
   })
   fullName: string;
 }

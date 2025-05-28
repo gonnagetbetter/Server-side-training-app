@@ -97,7 +97,7 @@ export class UsersService extends BasicCrudService<User> {
       if (trainer.role !== UserRole.TRAINER) {
         throw new BadRequestException('Specified user is not a trainer');
       }
-      updateData.trainerId = dto.trainerId;
+      updateData.trainer = trainer;
     }
 
     if (dto.group_id) {

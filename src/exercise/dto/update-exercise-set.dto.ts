@@ -1,13 +1,7 @@
 import { PartialType } from '@nestjs/swagger';
 import { CreateExerciseSetDto } from './create-exercise-set.dto';
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsArray,
-  IsInt,
-  IsNotEmpty,
-  IsNumber,
-  IsOptional,
-} from 'class-validator';
+import { IsInt, IsNotEmpty } from 'class-validator';
 
 export class UpdateExerciseSetDto extends PartialType(CreateExerciseSetDto) {
   @IsInt()
@@ -18,15 +12,4 @@ export class UpdateExerciseSetDto extends PartialType(CreateExerciseSetDto) {
     required: true,
   })
   id: number;
-
-  @IsOptional()
-  @IsArray()
-  @IsNumber({}, { each: true })
-  @ApiProperty({
-    description: 'Array of exercise IDs that are part of this set',
-    type: [Number],
-    example: [1, 2, 3, 4],
-    required: false,
-  })
-  exerciseIds?: number[];
-}
+} 

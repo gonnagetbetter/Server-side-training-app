@@ -70,4 +70,10 @@ export class ExerciseSetService extends BasicCrudService<ExerciseSet> {
 
     return this.deleteOne(filter);
   }
+
+  async getExerciseIds(setId: number): Promise<number[]> {
+    const exerciseSet = await this.findOneSafe(setId);
+    await this.entityManager.populate(exerciseSet, ['exercises']);
+    return exerciseSet.exercises.map(exercise => exercise.id);
+  }
 }

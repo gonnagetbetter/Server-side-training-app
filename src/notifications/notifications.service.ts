@@ -31,7 +31,7 @@ export class NotificationsService {
         const message = `Reminder: training starts at ${training.date.toLocaleTimeString()}`;
 
         if (training.trainingType === TrainingType.INDIVIDUAL) {
-          if (training.trainee) {
+          if (training.trainee?.id) {
             this.notificationsGateway.sendReminder(
               training.trainee.id.toString(),
               message,
@@ -43,7 +43,7 @@ export class NotificationsService {
               training.traineeGroup,
             );
             for (const member of groupMembers) {
-              if (member.id) {
+              if (member?.id) {
                 this.notificationsGateway.sendReminder(
                   member.id.toString(),
                   message,

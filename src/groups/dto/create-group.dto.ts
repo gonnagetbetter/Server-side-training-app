@@ -5,7 +5,9 @@ export class CreateGroupDto {
   @IsString()
   @IsNotEmpty()
   @ApiProperty({
-    description: 'Group name',
+    description: 'Name of the training group',
+    example: 'Morning Fitness Group',
+    required: true,
   })
   name: string;
 }

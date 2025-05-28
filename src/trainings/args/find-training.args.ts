@@ -18,7 +18,9 @@ export class FindTrainingArgs {
   @Min(1)
   @ApiProperty({
     required: false,
-    description: 'ID of the training',
+    description: 'ID of the training to find',
+    example: 1,
+    minimum: 1,
   })
   id?: number;
 
@@ -27,7 +29,8 @@ export class FindTrainingArgs {
   @ApiProperty({
     enum: TrainingType,
     required: false,
-    description: 'Type of the training (individual or group)',
+    description: 'Type of the training session (individual or group)',
+    example: TrainingType.INDIVIDUAL,
   })
   trainingType?: TrainingType;
 
@@ -36,7 +39,8 @@ export class FindTrainingArgs {
   @ApiProperty({
     enum: TrainingStatus,
     required: false,
-    description: 'Status of the training (FINISHED, FUTURE, CANCELLED)',
+    description: 'Current status of the training session (FINISHED, FUTURE, CANCELLED)',
+    example: TrainingStatus.FINISHED,
   })
   status?: TrainingStatus;
 
@@ -44,7 +48,8 @@ export class FindTrainingArgs {
   @IsNumber()
   @ApiProperty({
     required: false,
-    description: 'ID of the trainer',
+    description: 'ID of the trainer conducting the training',
+    example: 1,
   })
   trainer?: number;
 
@@ -52,7 +57,8 @@ export class FindTrainingArgs {
   @IsNumber()
   @ApiProperty({
     required: false,
-    description: 'ID of the trainee',
+    description: 'ID of the individual trainee (for individual trainings)',
+    example: 2,
   })
   trainee?: number;
 
@@ -60,7 +66,8 @@ export class FindTrainingArgs {
   @IsNumber()
   @ApiProperty({
     required: false,
-    description: 'ID of the trainee group',
+    description: 'ID of the trainee group (for group trainings)',
+    example: 3,
   })
   traineeGroup?: number;
 
@@ -68,7 +75,8 @@ export class FindTrainingArgs {
   @IsNumber()
   @ApiProperty({
     required: false,
-    description: 'ID of the exercise set',
+    description: 'ID of the exercise set assigned to the training',
+    example: 4,
   })
   exerciseSetId?: number;
 
@@ -76,7 +84,8 @@ export class FindTrainingArgs {
   @IsString()
   @ApiProperty({
     required: false,
-    description: 'Description of the training',
+    description: 'Exact description text to match (case-sensitive)',
+    example: 'Upper body strength training',
   })
   description?: string;
 
@@ -84,7 +93,8 @@ export class FindTrainingArgs {
   @IsString()
   @ApiProperty({
     required: false,
-    description: 'Search term for filtering trainings by description',
+    description: 'Search term to filter trainings by description (case-insensitive partial match)',
+    example: 'strength',
   })
   search?: string;
 
@@ -92,7 +102,8 @@ export class FindTrainingArgs {
   @IsBoolean()
   @ApiProperty({
     required: false,
-    description: 'Flag for filtering trainings by notification status',
+    description: 'Filter trainings by notification status (true = notified, false = not notified)',
+    example: true,
   })
   NotifiedAbout?: boolean;
 
@@ -100,7 +111,8 @@ export class FindTrainingArgs {
   @IsDate()
   @ApiProperty({
     required: false,
-    description: 'Flag for filtering trainings by date',
+    description: 'Filter trainings by specific date (exact match)',
+    example: '2024-03-20T15:00:00Z',
   })
   date?: Date;
 }
