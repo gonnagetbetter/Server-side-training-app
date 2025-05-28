@@ -15,7 +15,7 @@ export class NotificationsService {
     private readonly groupsService: GroupsService,
   ) {}
 
-  @Cron(CronExpression.EVERY_MINUTE)
+  @Cron(CronExpression.EVERY_30_MINUTES)
   async checkUpcomingTrainings() {
     const args = new FindTrainingArgs();
 
