@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { StatsReport } from './entities/stats-report.entity';
 import { BasicCrudService } from '../common/basic-crud.service';
 import { CacheService } from '../cache/cache.service';
@@ -17,6 +17,7 @@ import { GetTrainerStatsDto } from './dto/get-trainer-stats.dto';
 import { UserMetadata } from '../auth/types/user-metadata.type';
 import { Training } from '../trainings/entities/training.entity';
 import { GroupsService } from '../groups/groups.service';
+import { UserRole } from '../users/enums/user-role.enum';
 
 @Injectable()
 export class StatsReportService extends BasicCrudService<StatsReport> {
@@ -42,23 +43,39 @@ export class StatsReportService extends BasicCrudService<StatsReport> {
     });
   }
 
+  async getReport(id: number, meta: UserMetadata): Promise<StatsReport> {
+    const report = await this.findOneOrFail(id);
+    const requester = await this.usersService.findOneOrFail(meta.userId);
+
+    if (meta.userRole !== UserRole.ADMIN && report.madeBy !== requester) {
+      throw new BadRequestException();
+    }
+    return report;
+  }
+
   async createAttendanceReport(dto: CreateStatsReportDto, meta: UserMetadata) {
-    if (!dto.madeFor || !dto.monthsNum) {
-      throw new Error('You must specify a user to generate report for');
+    if (!dto.madeFor) {
+      throw new BadRequestException(
+        'You must specify a user to generate report for',
+      );
     }
 
     const madeFor = await this.usersService.findOne(dto.madeFor);
 
     if (!madeFor) {
-      throw new Error(`User with id ${meta.userId} not found`);
+      throw new BadRequestException(`User with id ${meta.userId} not found`);
     }
 
     if (meta.userRole == 'USER' && dto.madeFor != meta.userId) {
-      throw new Error('You are not allowed to create this report');
+      throw new BadRequestException(
+        'You are not allowed to create this report',
+      );
     }
 
     if (meta.userRole == 'TRAINER' && madeFor.trainer.id != meta.userId) {
-      throw new Error('You are not allowed to create this report');
+      throw new BadRequestException(
+        'You are not allowed to create this report',
+      );
     }
 
     const madeBy = await this.usersService.findOneOrFail(meta.userId);
@@ -91,6 +108,8 @@ export class StatsReportService extends BasicCrudService<StatsReport> {
     } else {
       endDate = new Date();
       startDate = new Date();
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error
       startDate.setMonth(endDate.getMonth() - dto.monthsNum);
     }
 
@@ -119,7 +138,6 @@ export class StatsReportService extends BasicCrudService<StatsReport> {
             } else {
               const stats = exerciseStats.get(exercise.name);
               if (currentWeight < stats.minWeight) {
-                stats.minWeight = currentWeight;
               }
               if (currentWeight > stats.maxWeight) {
                 stats.maxWeight = currentWeight;
@@ -235,7 +253,9 @@ export class StatsReportService extends BasicCrudService<StatsReport> {
 
   async getTrainerStats(dto: GetTrainerStatsDto, meta: UserMetadata) {
     if (meta.userRole != 'ADMIN' && meta.userId != dto.madeFor) {
-      throw new Error('You are not allowed to create this report');
+      throw new BadRequestException(
+        'You are not allowed to create this report',
+      );
     }
 
     const creationDto: CreateStatsReportDto = new CreateStatsReportDto();

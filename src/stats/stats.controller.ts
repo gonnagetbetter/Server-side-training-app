@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { StatsReportService } from './stats.service';
@@ -55,5 +63,18 @@ export class StatsController {
     @UserMeta() meta: UserMetadata,
   ) {
     return this.statsReportService.getTrainerStats(dto, meta);
+  }
+
+  @Get('report:id')
+  @ApiBearerAuth()
+  @UseGuards(RolesGuard)
+  @ApiOkResponse({
+    description: 'Returns report from database',
+  })
+  getReport(
+    @Param('id', ParseIntPipe) id: number,
+    @UserMeta() meta: UserMetadata,
+  ) {
+    return this.statsReportService.getReport(id, meta);
   }
 }
