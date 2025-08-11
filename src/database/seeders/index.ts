@@ -8,7 +8,7 @@ import { ExerciseSet } from '../../exercise-set/entities/exercise-set.entity';
 import { Training } from '../../trainings/entities/training.entity';
 import { TrainingType } from '../../trainings/enums/training-type.enum';
 import { TrainingStatus } from '../../trainings/enums/training-status';
-import { addDays, subDays, subMonths } from 'date-fns';
+import { addDays, subMonths } from 'date-fns';
 
 export class Seeder {
   constructor(private readonly em: EntityManager) {}
@@ -134,7 +134,8 @@ export class Seeder {
       // Create 5 completed trainings for the last 2 months
       for (let i = 0; i < 5; i++) {
         const training = new Training();
-        const randomTrainer = trainers[Math.floor(Math.random() * trainers.length)];
+        const randomTrainer =
+          trainers[Math.floor(Math.random() * trainers.length)];
         training.trainer = randomTrainer;
         training.trainingType = TrainingType.INDIVIDUAL;
         training.trainee = user;
@@ -149,7 +150,8 @@ export class Seeder {
       // Create 2 future individual trainings for this week
       for (let i = 0; i < 2; i++) {
         const training = new Training();
-        const randomTrainer = trainers[Math.floor(Math.random() * trainers.length)];
+        const randomTrainer =
+          trainers[Math.floor(Math.random() * trainers.length)];
         training.trainer = randomTrainer;
         training.trainingType = TrainingType.INDIVIDUAL;
         training.trainee = user;
@@ -195,4 +197,4 @@ export class Seeder {
 
     await this.em.persistAndFlush(trainings);
   }
-} 
+}

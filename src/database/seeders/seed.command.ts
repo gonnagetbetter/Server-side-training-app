@@ -25,4 +25,4 @@ export class SeedCommand {
       await orm.close();
     }
   }
-} 
+}
