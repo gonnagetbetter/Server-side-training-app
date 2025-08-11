@@ -41,6 +41,9 @@ export class GroupsController {
 
   @ApiBearerAuth()
   @Get(':id')
+  @ApiOkResponse({
+    description: 'Creates a group',
+  })
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.groupsService.findOneSafe(id);
   }
@@ -58,12 +61,18 @@ export class GroupsController {
   @Patch()
   @UseGuards(RolesGuard)
   @RequiredRole(UserRole.ADMIN)
+  @ApiOkResponse({
+    description: 'Updates a group',
+  })
   update(@Body() dto: UpdateGroupDto, @UserMeta() meta: UserMetadata) {
     return this.groupsService.update(dto, meta);
   }
 
   @ApiBearerAuth()
   @Delete(':id')
+  @ApiOkResponse({
+    description: 'Deletes a group',
+  })
   remove(
     @Param('id', ParseIntPipe) id: number,
     @UserMeta() meta: UserMetadata,

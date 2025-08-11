@@ -74,6 +74,6 @@ export class ExerciseSetService extends BasicCrudService<ExerciseSet> {
   async getExerciseIds(setId: number): Promise<number[]> {
     const exerciseSet = await this.findOneSafe(setId);
     await this.entityManager.populate(exerciseSet, ['exercises']);
-    return exerciseSet.exercises.map(exercise => exercise.id);
+    return exerciseSet.exercises.map((exercise) => exercise.id);
   }
 }

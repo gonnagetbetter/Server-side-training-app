@@ -5,7 +5,6 @@ import {
   Property,
   Enum,
   ManyToOne,
-  OneToMany,
   ManyToMany,
 } from '@mikro-orm/core';
 import { TrainingRepository } from '../repositories/training.repository';

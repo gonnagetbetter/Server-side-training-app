@@ -5,7 +5,8 @@ export class CreateExerciseSetDto {
   @IsString()
   @IsNotEmpty()
   @ApiProperty({
-    description: 'Name of the exercise set (e.g., "Upper Body Strength", "Core Workout", "Full Body Circuit")',
+    description:
+      'Name of the exercise set (e.g., "Upper Body Strength", "Core Workout", "Full Body Circuit")',
     example: 'Upper Body Strength',
     required: true,
   })
@@ -14,8 +15,10 @@ export class CreateExerciseSetDto {
   @IsString()
   @IsNotEmpty()
   @ApiProperty({
-    description: 'Detailed description of the exercise set, including its purpose and target muscle groups',
-    example: 'A comprehensive upper body workout focusing on chest, shoulders, and arms. Includes both compound and isolation exercises.',
+    description:
+      'Detailed description of the exercise set, including its purpose and target muscle groups',
+    example:
+      'A comprehensive upper body workout focusing on chest, shoulders, and arms. Includes both compound and isolation exercises.',
     required: true,
   })
   description: string;
@@ -28,4 +31,4 @@ export class CreateExerciseSetDto {
     required: true,
   })
   trainerId: number;
-} 
+}

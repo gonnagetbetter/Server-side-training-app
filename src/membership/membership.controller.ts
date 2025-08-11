@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { MembershipService } from './membership.service';
 import { CreateMembershipDto } from './dto/create-membership.dto';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { UserMetadata } from '../auth/types/user-metadata.type';
 import { UserMeta } from '../auth/decorator/user-meta.decorator';
@@ -20,9 +20,12 @@ import { MonobankWebhookGuard } from '../monobank/guards/monobank-webhook.guard'
 export class MembershipController {
   constructor(private readonly membershipService: MembershipService) {}
 
-  @Post('invoice-monobank')
+  @Post('membership-invoice')
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
+  @ApiOkResponse({
+    description: 'Creates a membership invoice for the current user',
+  })
   async create(
     @Body() dto: CreateMembershipDto,
     @UserMeta() meta: UserMetadata,
@@ -38,9 +41,12 @@ export class MembershipController {
     return { ok: true };
   }
 
-  @Get('membership')
+  @Get('mine')
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
+  @ApiOkResponse({
+    description: 'Returns the membership for the current user',
+  })
   async getMembership(@UserMeta() meta: UserMetadata) {
     return this.membershipService.getMembership(meta);
   }

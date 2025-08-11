@@ -26,7 +26,7 @@ export class ExerciseController {
   @Get()
   @ApiBearerAuth()
   @ApiOkResponse({
-    description: 'Returned all exercises',
+    description: 'Returns all exercises',
   })
   findAll(@Query() args: FindExerciseArgs) {
     return this.exerciseService.findAll(args);
@@ -34,6 +34,9 @@ export class ExerciseController {
 
   @ApiBearerAuth()
   @Get(':id')
+  @ApiOkResponse({
+    description: 'Returns an exercise',
+  })
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.exerciseService.findOneSafe(id);
   }
@@ -41,7 +44,7 @@ export class ExerciseController {
   @Post()
   @ApiBearerAuth()
   @ApiOkResponse({
-    description: 'Created an exercise',
+    description: 'Creates an exercise',
   })
   createExercise(@Body() dto: CreateExerciseDto) {
     return this.exerciseService.create(dto);
@@ -49,12 +52,18 @@ export class ExerciseController {
 
   @ApiBearerAuth()
   @Patch()
+  @ApiOkResponse({
+    description: 'Updates an exercise',
+  })
   update(@Body() dto: UpdateExerciseDto) {
     return this.exerciseService.update(dto);
   }
 
   @ApiBearerAuth()
   @Delete(':id')
+  @ApiOkResponse({
+    description: 'Deletes an exercise',
+  })
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.exerciseService.remove(id);
   }

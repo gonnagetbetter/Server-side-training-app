@@ -12,4 +12,4 @@ export class UpdateExerciseDto extends PartialType(CreateExerciseDto) {
     required: true,
   })
   id: number;
-} 
+}

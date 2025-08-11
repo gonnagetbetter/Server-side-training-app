@@ -42,12 +42,7 @@ export class MembershipService extends BasicCrudService<Membership> {
     const user = await this.userService.findOneOrFail(meta.userId);
     const membership = await this.getMembership(meta);
 
-    if (
-      membership &&
-      membership.status == 'active' &&
-      membership.endDate &&
-      membership.endDate > new Date()
-    ) {
+    if (membership && membership.status == 'active') {
       throw new BadRequestException('You have already paid for membership');
     }
 
@@ -59,7 +54,7 @@ export class MembershipService extends BasicCrudService<Membership> {
       redirectUrl: this.config.redirectUrl,
       merchantPaymInfo: {
         reference: user.id.toString(),
-        destination: `Оплата абонемента`,
+        destination: 'Оплата абонемента',
         comment: `Абонемент для користувача ID: ${meta.userId}`,
       },
       webhookUrl: this.config.webhookUrl,
@@ -111,19 +106,24 @@ export class MembershipService extends BasicCrudService<Membership> {
 
   async getMembership(meta: UserMetadata) {
     const user = await this.userService.findOne(meta.userId);
-    const result = await this.findOne({
+    const membership = await this.findOne({
       user,
       status: MembershipStatus.ACTIVE,
     });
     if (
-      result &&
-      result.status == 'active' &&
-      result.endDate &&
-      result.endDate < new Date()
+      membership &&
+      membership.status == 'active' &&
+      membership.endDate &&
+      membership.endDate < new Date()
     ) {
-      result.status = MembershipStatus.EXPIRED;
-      return result;
+      membership.status = MembershipStatus.EXPIRED;
     }
-    return result;
+
+    if (membership) {
+      const { invoiceId, paymentUrl, amount, ...membershipData } = membership;
+      return membershipData;
+    } else {
+      return null;
+    }
   }
 }

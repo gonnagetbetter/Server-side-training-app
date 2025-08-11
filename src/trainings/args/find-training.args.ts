@@ -39,7 +39,8 @@ export class FindTrainingArgs {
   @ApiProperty({
     enum: TrainingStatus,
     required: false,
-    description: 'Current status of the training session (FINISHED, FUTURE, CANCELLED)',
+    description:
+      'Current status of the training session (FINISHED, FUTURE, CANCELLED)',
     example: TrainingStatus.FINISHED,
   })
   status?: TrainingStatus;
@@ -93,7 +94,8 @@ export class FindTrainingArgs {
   @IsString()
   @ApiProperty({
     required: false,
-    description: 'Search term to filter trainings by description (case-insensitive partial match)',
+    description:
+      'Search term to filter trainings by description (case-insensitive partial match)',
     example: 'strength',
   })
   search?: string;
@@ -102,7 +104,8 @@ export class FindTrainingArgs {
   @IsBoolean()
   @ApiProperty({
     required: false,
-    description: 'Filter trainings by notification status (true = notified, false = not notified)',
+    description:
+      'Filter trainings by notification status (true = notified, false = not notified)',
     example: true,
   })
   NotifiedAbout?: boolean;

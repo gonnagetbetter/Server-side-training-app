@@ -12,7 +12,8 @@ export class CreateExerciseDto {
   @IsString()
   @IsNotEmpty()
   @ApiProperty({
-    description: 'Name of the exercise (e.g., "Push-ups", "Squats", "Bench Press")',
+    description:
+      'Name of the exercise (e.g., "Push-ups", "Squats", "Bench Press")',
     example: 'Push-ups',
     required: true,
   })
@@ -21,8 +22,10 @@ export class CreateExerciseDto {
   @IsString()
   @IsNotEmpty()
   @ApiProperty({
-    description: 'Detailed description of how to perform the exercise correctly, including form and technique',
-    example: 'Start in a plank position with hands shoulder-width apart. Lower your body until your chest nearly touches the floor, then push back up.',
+    description:
+      'Detailed description of how to perform the exercise correctly, including form and technique',
+    example:
+      'Start in a plank position with hands shoulder-width apart. Lower your body until your chest nearly touches the floor, then push back up.',
     required: true,
   })
   description: string;

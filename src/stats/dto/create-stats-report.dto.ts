@@ -13,7 +13,8 @@ export class CreateStatsReportDto {
 
   @ApiProperty({
     required: false,
-    description: 'Start date of the statistics period (if not specified, will be calculated based on monthsNum)',
+    description:
+      'Start date of the statistics period (if not specified, will be calculated based on monthsNum)',
     example: '2024-01-01T00:00:00Z',
   })
   @IsDate()
@@ -22,7 +23,8 @@ export class CreateStatsReportDto {
 
   @ApiProperty({
     required: false,
-    description: 'End date of the statistics period (if not specified, current date will be used)',
+    description:
+      'End date of the statistics period (if not specified, current date will be used)',
     example: '2024-03-20T00:00:00Z',
   })
   @IsDate()
@@ -31,7 +33,8 @@ export class CreateStatsReportDto {
 
   @ApiProperty({
     required: false,
-    description: 'ID of the user for whom the statistics report is being generated',
+    description:
+      'ID of the user for whom the statistics report is being generated',
     example: 1,
   })
   @IsNumber()

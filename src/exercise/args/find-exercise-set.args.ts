@@ -26,7 +26,8 @@ export class FindExerciseSetArgs {
   @IsString()
   @ApiProperty({
     required: false,
-    description: 'Search term to filter exercise sets by name (case-insensitive partial match)',
+    description:
+      'Search term to filter exercise sets by name (case-insensitive partial match)',
     example: 'upper',
   })
   search?: string;
@@ -41,4 +42,4 @@ export class FindExerciseSetArgs {
     minimum: 1,
   })
   trainerId?: number;
-} 
+}

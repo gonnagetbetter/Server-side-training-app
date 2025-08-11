@@ -1,5 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, IsOptional, IsString, Min, IsNumber, IsPositive } from 'class-validator';
+import {
+  IsInt,
+  IsOptional,
+  IsString,
+  Min,
+  IsNumber,
+  IsPositive,
+} from 'class-validator';
 
 export class FindExerciseArgs {
   @IsOptional()
@@ -26,7 +33,8 @@ export class FindExerciseArgs {
   @IsString()
   @ApiProperty({
     required: false,
-    description: 'Search term to filter exercises by name (case-insensitive partial match)',
+    description:
+      'Search term to filter exercises by name (case-insensitive partial match)',
     example: 'push',
   })
   search?: string;

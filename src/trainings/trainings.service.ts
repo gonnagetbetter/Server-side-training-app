@@ -49,6 +49,10 @@ export class TrainingsService extends BasicCrudService<Training> {
       training.trainer = user;
     }
 
+    if (!createTrainingDto.ExerciseSetId) {
+      throw new BadRequestException('Exercise set ID is required');
+    }
+
     if (createTrainingDto.trainingType === TrainingType.INDIVIDUAL) {
       if (!createTrainingDto.trainee) {
         throw new BadRequestException(

@@ -34,6 +34,9 @@ export class ExerciseSetController {
 
   @ApiBearerAuth()
   @Get(':id')
+  @ApiOkResponse({
+    description: 'Returns an exercise set',
+  })
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.exerciseSetService.findOneSafe(id);
   }
@@ -49,12 +52,18 @@ export class ExerciseSetController {
 
   @ApiBearerAuth()
   @Patch()
+  @ApiOkResponse({
+    description: 'Updates an exercise set',
+  })
   update(@Body() dto: UpdateExerciseSetDto) {
     return this.exerciseSetService.update(dto);
   }
 
   @ApiBearerAuth()
   @Delete(':id')
+  @ApiOkResponse({
+    description: 'Deletes an exercise set',
+  })
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.exerciseSetService.remove(id);
   }
