@@ -1,4 +1,9 @@
-import { CanActivate, ExecutionContext, Inject } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  Inject,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { MonobankClient } from '../monobank-client';
 import { MONOBANK_CONFIG } from '../constants';
 import { IMonobankConfig } from '../interface/monobank-config.interface';
@@ -28,6 +33,7 @@ export class MonobankWebhookGuard implements CanActivate {
     verify.write(JSON.stringify(request.body));
     verify.end();
     const result = verify.verify(publicKeyBuf, signatureBuf);
+    if (!result) throw new UnauthorizedException('Invalid signature');
     return result;
   }
 }

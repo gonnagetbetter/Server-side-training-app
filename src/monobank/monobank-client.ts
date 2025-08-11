@@ -5,20 +5,29 @@ import {
   Logger,
 } from '@nestjs/common';
 
-import axios from 'axios';
-import { MONOBANK_CONFIG } from './constants';
+import axios, { AxiosInstance } from 'axios';
+import { MONOBANK_CONFIG, ENDPOINTS } from './constants';
 import { IMonobankConfig } from './interface/monobank-config.interface';
 import { IMonobankInvoiceResponse } from './interface/monobank-invoice-response.interface';
 import { CreateInvoiceDto } from './dto/create-invoice.dto';
 
 @Injectable()
 export class MonobankClient {
-  private logger = new Logger(MonobankClient.name);
+  private readonly logger = new Logger(MonobankClient.name);
+  private readonly axiosInstance: AxiosInstance;
 
   constructor(
     @Inject(MONOBANK_CONFIG) private readonly config: IMonobankConfig,
   ) {
-    this.config = config;
+    this.axiosInstance = axios.create({
+      baseURL: this.config.apiUrl,
+    });
+  }
+
+  private createHeaders(token: string): Record<string, string> {
+    return {
+      'X-Token': token,
+    };
   }
 
   public async invoiceCreate(
@@ -27,15 +36,11 @@ export class MonobankClient {
     try {
       this.logger.debug('Trying to create invoice with payload:', dto);
 
-      const token = dto.token;
-
-      const response = await axios.post(
-        `${this.config.apiUrl}/api/merchant/invoice/create`,
+      const response = await this.axiosInstance.post(
+        ENDPOINTS.INVOICE_CREATE,
         dto,
         {
-          headers: {
-            'X-Token': token,
-          },
+          headers: this.createHeaders(dto.token),
         },
       );
 
@@ -44,31 +49,26 @@ export class MonobankClient {
       const { invoiceId, pageUrl } = response.data;
 
       return { invoiceId, pageUrl };
-    } catch (e) {
-      this.logger.error(e);
-
-      throw new InternalServerErrorException(e.message);
+    } catch (error) {
+      this.logger.error('Failed to create invoice:', error);
+      throw new InternalServerErrorException(
+        `Failed to create invoice: ${error.message}`,
+      );
     }
   }
 
   public async getPublicKey(token: string): Promise<string | undefined> {
     try {
-      const response = await axios.get(
-        `${this.config.apiUrl}/api/merchant/pubkey`,
-        {
-          headers: {
-            'X-Token': token,
-          },
-        },
-      );
-      if (response.data.key) {
-        return response.data.key;
-      }
-      return undefined;
-    } catch (e) {
-      this.logger.error(e);
+      const response = await this.axiosInstance.get(ENDPOINTS.PUBLIC_KEY, {
+        headers: this.createHeaders(token),
+      });
 
-      throw new InternalServerErrorException(e.message);
+      return response.data.key;
+    } catch (error) {
+      this.logger.error('Failed to get public key:', error);
+      throw new InternalServerErrorException(
+        `Failed to get public key: ${error.message}`,
+      );
     }
   }
 }
